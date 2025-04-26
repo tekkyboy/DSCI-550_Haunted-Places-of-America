@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Combined Higher Education Histogram</title>
+  <script src="https://d3js.org/d3.v7.min.js"></script>
+  <style>
+    body { font-family: sans-serif; }
+    svg { border: 1px solid black; }
+  </style>
+</head>
+<body>
+
+<h3>Histogram: Education Level & Percentage of Haunted Places of America</h3>
+<svg></svg>
+
+<script>
+const width = 960;
+const height = 500;
+const marginTop = 20;
+const marginRight = 20;
+const marginBottom = 30;
+const marginLeft = 40;
+
+// Load external JSON
+d3.json("DSCI-550_Visualizations_JSON/combined_higher_education_data.json").then(function(educationData) {
+
+  // Bin the data
+  const bins = d3.bin()
+      .thresholds(120)
+      .value((d) => d.bachelors)(educationData);
+
+  // x-scale
+  const x = d3.scaleLinear()
+      .domain([bins[0].x0, bins[bins.length - 1].x1])
+      .range([marginLeft, width - marginRight]);
+
+  // y-scale
+  const y = d3.scaleLinear()
+      .domain([0, d3.max(bins, (d) => d.length)]).nice()
+      .range([height - marginBottom, marginTop]);
+
+  // Create SVG
+  const svg = d3.select("svg")
+      .attr("width", width)
+      .attr("height", height)
+      .attr("viewBox", [0, 0, width, height])
+      .attr("style", "max-width: 100%; height: auto;");
+
+  // Bars
+  svg.append("g")
+    .attr("fill", "steelblue")
+    .selectAll("rect")
+    .data(bins)
+    .join("rect")
+      .attr("x", d => x(d.x0) + 1)
+      .attr("width", d => Math.max(0, x(d.x1) - x(d.x0) - 1))
+      .attr("y", d => y(d.length))
+      .attr("height", d => y(0) - y(d.length));
+
+  // x-axis
+  svg.append("g")
+    .attr("transform", `translate(0,${height - marginBottom})`)
+    .call(d3.axisBottom(x).ticks(width / 80).tickSizeOuter(0))
+    .call(g => g.append("text")
+      .attr("x", width - marginRight)
+      .attr("y", 30)
+      .attr("fill", "currentColor")
+      .attr("text-anchor", "end")
+      .text("Percent with Bachelor's or Higher Degree (%) →"));
+
+  // y-axis
+  svg.append("g")
+    .attr("transform", `translate(${marginLeft},0)`)
+    .call(d3.axisLeft(y))
+    .call(g => g.select(".domain").remove())
+    .call(g => g.append("text")
+      .attr("x", -marginLeft)
+      .attr("y", 10)
+      .attr("fill", "currentColor")
+      .attr("text-anchor", "start")
+      .text("↑ Number of Haunted Places"));
+
+});
+</script>
+
+</body>
+</html>
