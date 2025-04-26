@@ -16,44 +16,30 @@
     const marginBottom = 30;
     const marginLeft = 40;
 
-    // Dummy data (replace this with your real data)
-    const educationData = [
-      { bachelors: 25 },
-      { bachelors: 35 },
-      { bachelors: 45 },
-      { bachelors: 55 },
-      { bachelors: 65 },
-      { bachelors: 30 },
-      { bachelors: 50 }
-    ]; // <-- properly defined array
-
-    // Bin the data.
+    d3.json("combined_higher_education_data.json").then(educationData => {
+    
     const bins = d3.bin()
-      .thresholds(120) // Number of bins
-      .value(d => d.bachelors) // Accessor
-      (educationData); // Dataset
+      .thresholds(120)
+      .value(d => d.combined_higher_education)
+      (educationData);
 
-    // Declare the x (horizontal position) scale.
     const x = d3.scaleLinear()
       .domain([bins[0].x0, bins[bins.length - 1].x1])
       .range([marginLeft, width - marginRight]);
 
-    // Declare the y (vertical position) scale.
     const y = d3.scaleLinear()
       .domain([0, d3.max(bins, d => d.length)])
       .range([height - marginBottom, marginTop]);
 
-    // Create the SVG container
     const svg = d3.select("svg")
       .attr("width", width)
       .attr("height", height)
       .attr("viewBox", [0, 0, width, height])
       .attr("style", "max-width: 100%; height: auto;");
 
-    // Add a rectangle for each bin.
     svg.append("g")
       .attr("fill", "steelblue")
-      .selectAll("rect") // <-- specify "rect" here
+      .selectAll("rect")
       .data(bins)
       .join("rect")
         .attr("x", d => x(d.x0) + 1)
@@ -61,29 +47,27 @@
         .attr("y", d => y(d.length))
         .attr("height", d => y(0) - y(d.length));
 
-    // Label for x-axis
     svg.append("g")
-      .attr("transform", `translate(0,${height - marginBottom})`) // <-- fixed template literal
+      .attr("transform", `translate(0,${height - marginBottom})`)
       .call(d3.axisBottom(x).ticks(width / 80).tickSizeOuter(0))
       .call(g => g.append("text")
-        .attr("x", width - marginRight)
-        .attr("y", 30)
-        .attr("fill", "currentColor")
-        .attr("text-anchor", "end")
-        .text("Percent with Bachelor's or a Higher Degree (%) →"));
+          .attr("x", width - marginRight)
+          .attr("y", 30)
+          .attr("fill", "currentColor")
+          .attr("text-anchor", "end")
+          .text("Percent with Bachelor's or a Higher Degree (%) →"));
 
-    // Label for y-axis
     svg.append("g")
-      .attr("transform", `translate(${marginLeft},0)`) // <-- fixed template literal
+      .attr("transform", `translate(${marginLeft},0)`)
       .call(d3.axisLeft(y).ticks(height / 40))
       .call(g => g.select(".domain").remove())
       .call(g => g.append("text")
-        .attr("x", -marginLeft)
-        .attr("y", 10)
-        .attr("fill", "currentColor")
-        .attr("text-anchor", "start")
-        .text("↑ Frequency (No. of Haunted Places)"));
-
+          .attr("x", -marginLeft)
+          .attr("y", 10)
+          .attr("fill", "currentColor")
+          .attr("text-anchor", "start")
+          .text("↑ Frequency (No. of Haunted Places)"));
+  });
   </script>
 </body>
 </html>
