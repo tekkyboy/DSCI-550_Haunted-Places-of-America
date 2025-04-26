@@ -207,7 +207,7 @@
             <button class="btn btn-visualization" onclick="loadVisualization('sightings_terrain_features')">Mapbox Bigfoot Sightings by Proximity to Geo Features</button>
             <button class="btn btn-visualization" onclick="loadVisualization('witness_count_squares')">Treemap of Witness Counts</button> -->
 
-            <button class="btn btn-visualization onclick="loadVisualization('education_histogram')">Combined Higher Education Histogram</button>
+            <button class="btn btn-visualization onclick="location.href='https://tekkyboy.github.io/DSCI-550_Haunted-Places-of-America/Combined_Higher_Education_Histogram.html'">Combined Higher Education Histogram</button>
 	    <button class="btn btn-visualization">Visualization Two</button>
             <button class="btn btn-visualization">Visualization Three</button>      	
             <button class="btn btn-visualization">Visualization Four</button>
@@ -259,23 +259,6 @@
         var menu = document.getElementById("visualizationMenu");
         menu.style.display = menu.style.display === 'block' ? 'none' : 'block';
     }
-    // Function to load a selected visualization along with its insights into the page
-    function loadVisualization(visualizationName) {
-            var visualizationContainer = document.getElementById("visualizationContainer");
-            var insight = insights[visualizationName];
-            var analysisHTML = `
-                <div class="analysis-textbox">
-                    <h4>Description</h4>
-                    <p>${insight.detail}</p>
-                    <strong>Insight:</strong> <p>${insight.insight}</p>
-                </div>
-            `;
-            var visualizationURL = `https://tekkyboy.github.io/DSCI-550_Haunted-Places-of-America/${visualizationName}.html`;
-            var iframeHTML = `<iframe src="${visualizationURL}" width="100%" height="600" frameborder="0"></iframe>`;
-            
-	    // Update the container's innerHTML order so analysis is on top
-            visualizationContainer.innerHTML = analysisHTML + iframeHTML;
-        }
 	</script>
 
 </body>
