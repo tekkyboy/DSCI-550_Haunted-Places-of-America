@@ -207,8 +207,8 @@
             <button class="btn btn-visualization" onclick="loadVisualization('sightings_terrain_features')">Mapbox Bigfoot Sightings by Proximity to Geo Features</button>
             <button class="btn btn-visualization" onclick="loadVisualization('witness_count_squares')">Treemap of Witness Counts</button> -->
 
-          	<button class="btn btn-visualization">Visualization One</button>
-	          <button class="btn btn-visualization">Visualization Two</button>
+            <button class="btn btn-visualization onclick="loadVisualization('education_histogram')">Combined Higher Education Histogram</button>
+	    <button class="btn btn-visualization">Visualization Two</button>
             <button class="btn btn-visualization">Visualization Three</button>      	
             <button class="btn btn-visualization">Visualization Four</button>
             <button class="btn btn-visualization">Visualization Five</button>
@@ -229,6 +229,10 @@
     <script>
 		// Object holding details and insights for each visualization
         var insights = {
+	'education_histogram': {
+                detail: 'Why did we choose this visualization?',
+                insight: "What can we learn from this?"
+            }
          /*   'entities_wordcloud': {
                 detail: "The word cloud highlights the most common words found in Bigfoot sighting reports. Words like 'forest,' 'black,' 'white,' 'woods,' 'mountain,' 'tree,' and 'night' are prominent, which may reflect common conditions, environment, or descriptors in Bigfoot encounters.",
                 insight: "The frequent mention of 'night' and 'black' in conjunction with 'forest' and 'woods' in Bigfoot sightings suggests that these encounters often occur in low-light conditions within heavy vegetation areas. This combination of darkness and dense foliage might affect the reliability of sightings, potentially explaining some of the ambiguity surrounding the existence of Bigfoot."
@@ -256,7 +260,7 @@
         menu.style.display = menu.style.display === 'block' ? 'none' : 'block';
     }
     // Function to load a selected visualization along with its insights into the page
-    /*function loadVisualization(visualizationName) {
+    function loadVisualization(visualizationName) {
             var visualizationContainer = document.getElementById("visualizationContainer");
             var insight = insights[visualizationName];
             var analysisHTML = `
@@ -266,12 +270,12 @@
                     <strong>Insight:</strong> <p>${insight.insight}</p>
                 </div>
             `;
-            //var visualizationURL = `https://nguyenlamvu88.github.io/dsci550_assignment_3_visualizations/${visualizationName}.html`;
-            //var iframeHTML = `<iframe src="${visualizationURL}" width="100%" height="600" frameborder="0"></iframe>`;
+            var visualizationURL = `https://nguyenlamvu88.github.io/dsci550_assignment_3_visualizations/${visualizationName}.html`;
+            var iframeHTML = `<iframe src="${visualizationURL}" width="100%" height="600" frameborder="0"></iframe>`;
             
-			// Update the container's innerHTML order so analysis is on top
-            visualizationContainer.innerHTML = analysisHTML + iframeHTML + caveMapHTML;
-        }*/
+	    // Update the container's innerHTML order so analysis is on top
+            visualizationContainer.innerHTML = analysisHTML + iframeHTML;
+        }
 	</script>
 
 </body>
