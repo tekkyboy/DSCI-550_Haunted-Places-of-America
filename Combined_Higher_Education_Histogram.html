@@ -26,9 +26,10 @@ const marginLeft = 40;
 d3.json("https://tekkyboy.github.io/DSCI-550_Haunted-Places-of-America/DSCI-550_Visualizations_JSON/combined_higher_education_data.json").then(function(educationData) {
 
   // Bin the data
+  const validEducationData = educationData.filter(d => d.bachelors != null && !isNaN(+d.bachelors));
   const bins = d3.bin()
       .thresholds(120)
-      .value((d) => d.bachelors)(educationData);
+      .value((d) => +d.bachelors)(validEducationData);
 
   // x-scale
   const x = d3.scaleLinear()
