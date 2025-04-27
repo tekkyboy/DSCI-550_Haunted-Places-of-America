@@ -18,6 +18,7 @@
 
 <h3>Interactive Treemap: Cities in States</h3>
 <svg width="960" height="600"></svg>
+
 <script>
   const svg = d3.select("svg");
   const margin = {top: 20, right: 30, bottom: 40, left: 90};
@@ -49,8 +50,9 @@
   let root = d3.hierarchy(data).sum(d => d.value);
   treemap(root);
 
+  let zoomStack = [root];  // Stack to hold zoom levels
+
   const zoom = d3.zoom().on("zoom", (event) => {
-    svg.attr("transform", event.transform);
     svg.selectAll("g").attr("transform", event.transform);
   });
 
@@ -83,12 +85,36 @@
     );
 
     if (clickedNode && clickedNode.depth === 1) { // Check if it's a state node
-      root = clickedNode;
-      treemap(root);
-      updateTreemap();
+      zoomIn(clickedNode);
+    } else if (clickedNode && clickedNode.depth === 2) { // If a city is clicked
+      zoomIn(clickedNode);
     }
   });
 
+  // Zoom in functionality
+  function zoomIn(node) {
+    zoomStack.push(node);  // Push the new zoomed node into the stack
+    root = node;
+    treemap(root);
+    updateTreemap();
+  }
+
+  // Zoom out functionality (go back to previous zoom level)
+  function zoomOut() {
+    if (zoomStack.length > 1) {
+      zoomStack.pop();  // Remove the current zoom level
+      root = zoomStack[zoomStack.length - 1];  // Get the previous zoom level
+      treemap(root);
+      updateTreemap();
+    }
+  }
+
+  // Add a zoom-out button
+  const zoomOutButton = d3.select("body").append("button")
+    .text("Zoom Out")
+    .on("click", zoomOut);
+
+  // Function to update the treemap
   function updateTreemap() {
     const cells = svg.selectAll("g")
       .data(root.leaves(), d => d.data.name)
@@ -96,7 +122,7 @@
       .attr("transform", d => `translate(${d.x0},${d.y0})`);
 
     cells.selectAll("rect")
-      .data(d => [d])  
+      .data(d => [d])  // Ensure one rect per data item
       .join("rect")
       .attr("width", d => d.x1 - d.x0)
       .attr("height", d => d.y1 - d.y0)
@@ -104,13 +130,14 @@
       .style("stroke", "white");
 
     cells.selectAll("text")
-      .data(d => [d])  
+      .data(d => [d])  // Ensure one text per data item
       .join("text")
       .attr("x", 5)
       .attr("y", 15)
       .text(d => d.data.name)
       .style("fill", "white");
   }
+
 </script>
 </body>
 </html>
