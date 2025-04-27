@@ -199,7 +199,7 @@ const dimensions = ["Alcohol_Consumption", "Air_Quality_Score", "Haunted_Place_C
 
 // SVG setup
 const svg = d3.select("svg"),
-      margin = {{top: 30, right: 50, bottom: 10, left: 50}},
+      margin = {top: 30, right: 50, bottom: 10, left: 50},
       width = +svg.attr("width") - margin.left - margin.right,
       height = +svg.attr("height") - margin.top - margin.bottom;
 
@@ -213,12 +213,12 @@ const x = d3.scalePoint()
     .domain(dimensions);
 
 // Y scale for each dimension
-const y = {{}};
-dimensions.forEach(dim => {{
+const y = {};
+dimensions.forEach(dim => {
   y[dim] = d3.scaleLinear()
     .domain(d3.extent(alcoholAndAirQualityData, d => +d[dim]))
     .range([height, 0]);
-}});
+});
 
 // Inverted color scale: darker red = lower air quality
 const airQualityExtent = d3.extent(alcoholAndAirQualityData, d => +d.Air_Quality_Score);
