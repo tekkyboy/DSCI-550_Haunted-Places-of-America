@@ -1,0 +1,102 @@
+[
+  {
+    "Sunlight Bin":"0\u20134",
+    "Time of Day":"Morning",
+    "Count":2
+  },
+  {
+    "Sunlight Bin":"0\u20134",
+    "Time of Day":"Unknown",
+    "Count":2
+  },
+  {
+    "Sunlight Bin":"4\u20138",
+    "Time of Day":"Evening",
+    "Count":4
+  },
+  {
+    "Sunlight Bin":"4\u20138",
+    "Time of Day":"Morning",
+    "Count":3
+  },
+  {
+    "Sunlight Bin":"4\u20138",
+    "Time of Day":"Unknown",
+    "Count":10
+  },
+  {
+    "Sunlight Bin":"8\u201310",
+    "Time of Day":"Dusk",
+    "Count":14
+  },
+  {
+    "Sunlight Bin":"8\u201310",
+    "Time of Day":"Evening",
+    "Count":1732
+  },
+  {
+    "Sunlight Bin":"8\u201310",
+    "Time of Day":"Morning",
+    "Count":1229
+  },
+  {
+    "Sunlight Bin":"8\u201310",
+    "Time of Day":"Unknown",
+    "Count":2815
+  },
+  {
+    "Sunlight Bin":"10\u201312",
+    "Time of Day":"Dusk",
+    "Count":13
+  },
+  {
+    "Sunlight Bin":"10\u201312",
+    "Time of Day":"Evening",
+    "Count":1085
+  },
+  {
+    "Sunlight Bin":"10\u201312",
+    "Time of Day":"Morning",
+    "Count":800
+  },
+  {
+    "Sunlight Bin":"10\u201312",
+    "Time of Day":"Unknown",
+    "Count":1170
+  },
+  {
+    "Sunlight Bin":"12\u201314",
+    "Time of Day":"Dusk",
+    "Count":1
+  },
+  {
+    "Sunlight Bin":"12\u201314",
+    "Time of Day":"Evening",
+    "Count":144
+  },
+  {
+    "Sunlight Bin":"12\u201314",
+    "Time of Day":"Morning",
+    "Count":119
+  },
+  {
+    "Sunlight Bin":"12\u201314",
+    "Time of Day":"Unknown",
+    "Count":150
+  },
+  {
+    "Sunlight Bin":"14+",
+    "Time of Day":"Evening",
+    "Count":67
+  },
+  {
+    "Sunlight Bin":"14+",
+    "Time of Day":"Morning",
+    "Count":46
+  },
+  {
+    "Sunlight Bin":"14+",
+    "Time of Day":"Unknown",
+    "Count":71
+  }
+]
