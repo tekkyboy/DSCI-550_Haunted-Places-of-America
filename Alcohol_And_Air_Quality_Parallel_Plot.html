@@ -190,74 +190,78 @@
 <svg width="1000" height="500" style="border:1px solid #ccc;"></svg>
 
 <script src="https://d3js.org/d3.v7.min.js"></script>
+<h1>Alcohol and Air Quality Data Parallel Plot</h1>
+
+<svg width="1000" height="500"></svg>
 <script>
-// Load data
-d3.json("DSCI-550_Visualizations_JSON/alcohol_and_air_quality_data.json").then(alcoholAndAirQualityData => {
+// Load data from the external JSON file
+d3.json("DSCI-550_Visualizations_JSON/alcohol_and_air_quality_data.json").then(function(data) {
 
-// Dimensions to plot
-const dimensions = ["Alcohol_Consumption", "Air_Quality_Score", "Haunted_Place_Count"];
+    // Dimensions to plot
+    const dimensions = ["Alcohol_Consumption", "Air_Quality_Score", "Haunted_Place_Count"];
 
-// SVG setup
-const svg = d3.select("svg"),
-      margin = {top: 30, right: 50, bottom: 10, left: 50},
-      width = +svg.attr("width") - margin.left - margin.right,
-      height = +svg.attr("height") - margin.top - margin.bottom;
+    // SVG setup
+    const svg = d3.select("svg"),
+          margin = {top: 30, right: 50, bottom: 10, left: 50},
+          width = +svg.attr("width") - margin.left - margin.right,
+          height = +svg.attr("height") - margin.top - margin.bottom;
 
-// Group to hold everything
-const g = svg.append("g").attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+    // Group to hold everything
+    const g = svg.append("g").attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
-// X position for each axis
-const x = d3.scalePoint()
-    .range([0, width])
-    .padding(1)
-    .domain(dimensions);
+    // X position for each axis
+    const x = d3.scalePoint()
+        .range([0, width])
+        .padding(1)
+        .domain(dimensions);
 
-// Y scale for each dimension
-const y = {};
-dimensions.forEach(dim => {
-  y[dim] = d3.scaleLinear()
-    .domain(d3.extent(alcoholAndAirQualityData, d => +d[dim]))
-    .range([height, 0]);
+    // Y scale for each dimension
+    const y = {};
+    dimensions.forEach(dim => {
+        y[dim] = d3.scaleLinear()
+            .domain(d3.extent(data, d => +d[dim]))
+            .range([height, 0]);
+    });
+
+    // Inverted color scale: darker red = lower air quality
+    const airQualityExtent = d3.extent(data, d => +d.Air_Quality_Score);
+    const color = d3.scaleSequential()
+        .domain([airQualityExtent[0], airQualityExtent[1]])
+        .interpolator(d3.interpolateReds);
+
+    // Line generator
+    const line = d3.line();
+    function path(d) {
+        return line(dimensions.map(p => [x(p), y[p](d[p])]));
+    }
+
+    // Draw each line with dynamic color
+    g.selectAll("path")
+      .data(data)
+      .join("path")
+        .attr("d", path)
+        .attr("stroke", d => color(d.Air_Quality_Score))
+        .attr("stroke-width", 1.5)
+        .attr("fill", "none")
+        .attr("opacity", 0.85)
+        .append("title")
+        .text(d => d.City + ", " + d.State);
+
+    // Draw axes
+    g.selectAll(".axis")
+      .data(dimensions)
+      .join("g")
+        .attr("class", "axis")
+        .attr("transform", d => "translate(" + x(d) + ")")
+        .each(function(d) {
+            d3.select(this).call(d3.axisLeft(y[d]));
+        })
+      .append("text")
+        .style("text-anchor", "middle")
+        .attr("y", -10)
+        .text(d => d)
+        .style("fill", "black");
 });
-
-// Inverted color scale: darker red = lower air quality
-const airQualityExtent = d3.extent(alcoholAndAirQualityData, d => +d.Air_Quality_Score);
-const color = d3.scaleSequential()
-    .domain([airQualityExtent[0], airQualityExtent[1]])
-    .interpolator(d3.interpolateReds);
-
-// Line generator
-const line = d3.line();
-function path(d) {{
-  return line(dimensions.map(p => [x(p), y[p](d[p])]));
-}}
-
-// Draw each line with dynamic color
-g.selectAll("path")
-  .data(alcoholAndAirQualityData)
-  .join("path")
-    .attr("d", path)
-    .attr("stroke", d => color(d.Air_Quality_Score))
-    .attr("stroke-width", 1.5)
-    .attr("fill", "none")
-    .attr("opacity", 0.85)
-    .append("title")
-    .text(d => d.City + ", " + d.State);
-
-// Draw axes
-g.selectAll(".axis")
-  .data(dimensions)
-  .join("g")
-    .attr("class", "axis")
-    .attr("transform", d => "translate(" + x(d) + ")")
-    .each(function(d) {{
-      d3.select(this).call(d3.axisLeft(y[d]));
-    }})
-  .append("text")
-    .style("text-anchor", "middle")
-    .attr("y", -10)
-    .text(d => d)
-    .style("fill", "black");
 </script>
 </div>
 
