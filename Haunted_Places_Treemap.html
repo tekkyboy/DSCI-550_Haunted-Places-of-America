@@ -18,10 +18,11 @@
 
 <h3>Interactive Treemap: Cities in States</h3>
 <svg width="960" height="600"></svg>
-
 <script>
-  const width = 960;
-  const height = 600;
+  const svg = d3.select("svg");
+  const margin = {top: 20, right: 30, bottom: 40, left: 90};
+  const width = svg.attr("width") - margin.left - margin.right;
+  const height = svg.attr("height") - margin.top - margin.bottom;
 
   // Example of hierarchical data
   const data = {
@@ -44,21 +45,13 @@
     ]
   };
 
-  const svg = d3.select("svg"),
-        margin = {top: 20, right: 30, bottom: 40, left: 90},
-        width = svg.attr("width") - margin.left - margin.right,
-        height = svg.attr("height") - margin.top - margin.bottom;
-
   const treemap = d3.treemap().size([width, height]).padding(1);
-  let root;
-
-  // Create a root node from the hierarchical data
-  root = d3.hierarchy(data).sum(d => d.value);
+  let root = d3.hierarchy(data).sum(d => d.value);
   treemap(root);
 
-  // Create a zoom function
   const zoom = d3.zoom().on("zoom", (event) => {
     svg.attr("transform", event.transform);
+    svg.selectAll("g").attr("transform", event.transform);
   });
 
   svg.call(zoom);
@@ -85,7 +78,8 @@
   svg.on("click", function(event) {
     const coords = d3.pointer(event);
     const clickedNode = root.descendants().find(d => 
-      coords[0] >= d.x0 && coords[0] <= d.x1 && coords[1] >= d.y0 && coords[1] <= d.y1
+      coords[0] >= (d.x0 * event.transform.k) && coords[0] <= (d.x1 * event.transform.k) &&
+      coords[1] >= (d.y0 * event.transform.k) && coords[1] <= (d.y1 * event.transform.k)
     );
 
     if (clickedNode && clickedNode.depth === 1) { // Check if it's a state node
@@ -95,26 +89,28 @@
     }
   });
 
-  // Function to update the treemap
   function updateTreemap() {
     const cells = svg.selectAll("g")
       .data(root.leaves(), d => d.data.name)
       .join("g")
       .attr("transform", d => `translate(${d.x0},${d.y0})`);
 
-    cells.append("rect")
+    cells.selectAll("rect")
+      .data(d => [d])  
+      .join("rect")
       .attr("width", d => d.x1 - d.x0)
       .attr("height", d => d.y1 - d.y0)
       .style("fill", "steelblue")
       .style("stroke", "white");
 
-    cells.append("text")
+    cells.selectAll("text")
+      .data(d => [d])  
+      .join("text")
       .attr("x", 5)
       .attr("y", 15)
       .text(d => d.data.name)
       .style("fill", "white");
   }
-
 </script>
 </body>
 </html>
