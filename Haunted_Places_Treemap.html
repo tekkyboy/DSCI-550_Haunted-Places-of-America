@@ -1,124 +1,101 @@
 <!DOCTYPE html>
 <meta charset="utf-8">
+
 <!-- Load d3.js -->
-<script src="https://d3js.org/d3.v6.js"></script>
+<script src="https://d3js.org/d3.v6.min.js"></script>
 
 <!-- Create a div where the graph will take place -->
 <div id="my_dataviz"></div>
 
 <script>
-// Set the dimensions and margins of the graph
-const margin = {top: 10, right: 10, bottom: 10, left: 10},
-      width = window.innerWidth - margin.left - margin.right, // Make the width responsive
-      height = window.innerHeight - margin.top - margin.bottom; // Make the height responsive
 
-// Append the svg object to the body of the page
-const svg = d3.select("#my_dataviz")
-  .append("svg")
+// Set the dimensions and margins of the graph
+var margin = {top: 10, right: 10, bottom: 10, left: 10},
+  width = 445 - margin.left - margin.right,
+  height = 445 - margin.top - margin.bottom;
+
+// Append the SVG object to the body of the page
+var svg = d3.select("#my_dataviz")
+.append("svg")
   .attr("width", width + margin.left + margin.right)
   .attr("height", height + margin.top + margin.bottom)
-  .append("g")
-  .attr("transform", `translate(${margin.left}, ${margin.top})`);
+.append("g")
+  .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
-// Read JSON data from the URL where you uploaded it on GitHub
-d3.json("https://raw.githubusercontent.com/tekkyboy/DSCI-550_Haunted-Places-of-America/main/DSCI-550_Visualizations_JSON/city_state_treemap_data.json").then(function(data) {
+// Load the JSON data
+d3.json("DSCI-550_Visualizations_JSON/better_city_state_treemap_data.json", function(data) {
+
+  // Give the data to this hierarchy layout:
+  var root = d3.hierarchy(data)
+    .sum(function(d){ return d.total_instances }) // Sum instances for each state
   
-  // Clean the data and convert it into a hierarchical structure
-  const hierarchyData = d3.hierarchy(data.unique_city_state)
-    .sum(d => d) // Sum the instances of each city
-    .sort((a, b) => b.value - a.value); // Sort the data
-
-  // Compute the position of each element of the hierarchy
+  // Compute the treemap layout
   d3.treemap()
     .size([width, height])
-    .paddingTop(28)
-    .paddingRight(7)
-    .paddingInner(3)
-    (hierarchyData);
+    .padding(10)
+    (root)
 
-  // Dynamically generate color scale based on unique cities or states
-  const color = d3.scaleOrdinal(d3.schemeCategory10)
-    .domain(hierarchyData.descendants().map(d => d.data.name));
+  // Prepare a color scale
+  var color = d3.scaleOrdinal(d3.schemeCategory10);
 
-  // Create the rectangles for the treemap
-  svg.selectAll("rect")
-    .data(hierarchyData.leaves())
-    .join("rect")
-    .attr('x', d => d.x0)
-    .attr('y', d => d.y0)
-    .attr('width', d => d.x1 - d.x0)
-    .attr('height', d => d.y1 - d.y0)
-    .style("stroke", "black")
-    .style("fill", d => color(d.parent.data.name)) // Use dynamic color scale
-    .style("opacity", 0.8) // Add some opacity for better visual aesthetics
-    .on("mouseover", function(event, d) {
-      d3.select(this).style("opacity", 1); // Highlight on hover
-    })
-    .on("mouseout", function(event, d) {
-      d3.select(this).style("opacity", 0.8); // Reset opacity
-    });
+  // Add rectangles for each state
+  svg
+    .selectAll("rect")
+    .data(root.leaves())
+    .enter()
+    .append("rect")
+      .attr('x', function(d) { return d.x0; })
+      .attr('y', function(d) { return d.y0; })
+      .attr('width', function(d) { return d.x1 - d.x0; })
+      .attr('height', function(d) { return d.y1 - d.y0; })
+      .style("stroke", "black")
+      .style("fill", function(d){ return color(d.data.name) })
+      .style("opacity", 0.8);
 
-  // Add city names as text labels
-  svg.selectAll("text")
-    .data(hierarchyData.leaves())
+  // Add text labels for each city
+  svg
+    .selectAll("text")
+    .data(root.leaves())
     .enter()
     .append("text")
-    .attr("x", d => d.x0 + 5)  // Position text inside each rectangle
-    .attr("y", d => d.y0 + 20) // Adjust for better visibility
-    .text(d => d.data.name)
-    .attr("font-size", "12px")
-    .attr("fill", "white");
+      .attr("x", function(d){ return d.x0 + 5 })    // Adjust position to the right
+      .attr("y", function(d){ return d.y0 + 20 })   // Adjust position lower
+      .text(function(d){ return d.data.name })      // Use the city name
+      .attr("font-size", "12px")
+      .attr("fill", "white");
 
-  // Add values (instances) as text labels
-  svg.selectAll("vals")
-    .data(hierarchyData.leaves())
+  // Add the instance count text for each city
+  svg
+    .selectAll(".instances")
+    .data(root.leaves())
     .enter()
     .append("text")
-    .attr("x", d => d.x0 + 5)
-    .attr("y", d => d.y0 + 35)
-    .text(d => d.data.value) // Display number of instances
-    .attr("font-size", "10px")
-    .attr("fill", "white");
+      .attr("x", function(d){ return d.x0 + 5 })    // Adjust position to the right
+      .attr("y", function(d){ return d.y0 + 35 })   // Adjust position lower
+      .text(function(d){ return d.data.instances })  // Display the instances
+      .attr("font-size", "10px")
+      .attr("fill", "white");
 
-  // Add title for the treemap
-  svg.append("text")
-    .attr("x", 0)
-    .attr("y", 14)
-    .text("City-State Treemap")
-    .attr("font-size", "19px")
-    .attr("fill", "grey");
+  // Add title text for each state
+  svg
+    .selectAll(".state-title")
+    .data(root.descendants().filter(function(d){return d.depth == 1}))
+    .enter()
+    .append("text")
+      .attr("x", function(d){ return d.x0 })
+      .attr("y", function(d){ return d.y0 + 20 })    // Adjust for title positioning
+      .text(function(d){ return d.data.name })        // Use the state name
+      .attr("font-size", "14px")
+      .attr("fill", "black");
 
-  // Make the SVG responsive to window resizing
-  window.onresize = () => {
-    const newWidth = window.innerWidth - margin.left - margin.right;
-    const newHeight = window.innerHeight - margin.top - margin.bottom;
-    
-    svg.attr("width", newWidth + margin.left + margin.right)
-       .attr("height", newHeight + margin.top + margin.bottom);
-    
-    // Recompute treemap layout
-    d3.treemap()
-      .size([newWidth, newHeight])
-      .paddingTop(28)
-      .paddingRight(7)
-      .paddingInner(3)
-      (hierarchyData);
-    
-    // Update the rectangles and text labels to match the new layout
-    svg.selectAll("rect")
-      .attr('x', d => d.x0)
-      .attr('y', d => d.y0)
-      .attr('width', d => d.x1 - d.x0)
-      .attr('height', d => d.y1 - d.y0);
-    
-    svg.selectAll("text")
-      .attr("x", d => d.x0 + 5)
-      .attr("y", d => d.y0 + 20);
-    
-    svg.selectAll("vals")
-      .attr("x", d => d.x0 + 5)
-      .attr("y", d => d.y0 + 35);
-  };
+  // Add a general title for the treemap
+  svg
+    .append("text")
+      .attr("x", 0)
+      .attr("y", 14)    // Adjust positioning for title
+      .text("State and City Instances Treemap")
+      .attr("font-size", "16px")
+      .attr("fill", "grey");
 
 });
 </script>
