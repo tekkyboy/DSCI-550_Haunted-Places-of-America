@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Haunted Places Bubble Map</title>
+  <script src="https://d3js.org/d3.v7.min.js"></script>
+  <script src="https://unpkg.com/topojson-client@3"></script>
+  <style>
+    svg { width: 100%; height: auto; }
+    .bubble { stroke: #fff; stroke-width: 0.5; opacity: 0.85; }
+    .tooltip {
+      position: absolute;
+      text-align: center;
+      padding: 6px;
+      font: 12px sans-serif;
+      background: rgba(0, 0, 0, 0.75);
+      color: white;
+      border-radius: 4px;
+      pointer-events: none;
+    }
+    #legend svg { display: block; }
+  </style>
+</head>
+
+<body>
+<div id="chart"></div>
+<div class="tooltip" style="opacity:0;"></div>
+
+<div id="legend" style="margin-top: 20px; font: 12px sans-serif;">
+  <strong>Legend:</strong>
+  <svg width="280" height="130">
+    <circle cx="20" cy="20" r="5" fill="#000" opacity="0.75"></circle>
+    <text x="40" y="25">Few haunted places</text>
+    <circle cx="20" cy="50" r="15" fill="#000" opacity="0.75"></circle>
+    <text x="40" y="55">Many haunted places</text>
+
+    <text x="20" y="85" style="font-size: 11px;">Color = haunted place count</text>
+    <defs>
+      <linearGradient id="infernoGradient" x1="0" x2="1" y1="0" y2="0">
+        <stop offset="0%" stop-color="#000004"/>
+        <stop offset="25%" stop-color="#420a68"/>
+        <stop offset="50%" stop-color="#932667"/>
+        <stop offset="75%" stop-color="#dd513a"/>
+        <stop offset="100%" stop-color="#fdae61"/>
+      </linearGradient>
+    </defs>
+    <rect x="20" y="90" width="180" height="10" fill="url(#infernoGradient)" />
+    <text x="20" y="115" style="font-size: 10px;">Low</text>
+    <text x="190" y="115" style="font-size: 10px;">High</text>
+  </svg>
+</div>
+
+<script>
+const width = 975;
+const height = 610;
+
+const svg = d3.select("#chart").append("svg")
+    .attr("viewBox", [0, 0, width, height]);
+
+const g = svg.append("g");
+const path = d3.geoPath();
+const projection = d3.geoAlbersUsa().scale(1300).translate([width / 2, height / 2]);
+
+const color = d3.scaleSequential()
+    .interpolator(d3.interpolateInferno);
+
+const radius = d3.scaleSqrt().range([0, 20]);
+
+const tooltip = d3.select(".tooltip");
+
+// Zooming
+const zoom = d3.zoom()
+    .scaleExtent([1, 5])
+    .wheelDelta(() => -0.1)
+    .on("zoom", (event) => {
+      g.attr("transform", event.transform);
+    });
+svg.call(zoom).on("dblclick.zoom", null);
+
+// Load external data
+Promise.all([
+  d3.json("https://cdn.jsdelivr.net/npm/us-atlas@3/counties-albers-10m.json"),
+  d3.json("DSCI-550_Visualizations_JSON/haunted_places_bubble_map_data.json")  // <-- External JSON file
+]).then(([us, hauntedData]) => {
+  
+  color.domain([0, d3.max(hauntedData, d => d.haunted_places_count)]);
+  radius.domain([0, d3.max(hauntedData, d => d.haunted_places_count)]);
+
+  g.append("path")
+      .datum(topojson.feature(us, us.objects.nation))
+      .attr("fill", "none")
+      .attr("stroke", "black")
+      .attr("stroke-width", 2)
+      .attr("d", path);
+
+  g.append("path")
+      .datum(topojson.mesh(us, us.objects.states, (a, b) => a !== b))
+      .attr("fill", "none")
+      .attr("stroke", "#000")
+      .attr("stroke-width", 1.5)
+      .attr("stroke-linejoin", "round")
+      .attr("d", path);
+
+  g.selectAll("circle")
+    .data(hauntedData)
+    .join("circle")
+    .attr("class", "bubble")
+    .attr("transform", d => {
+      const coords = projection([d.city_longitude, d.city_latitude]);
+      return coords ? "translate(" + coords[0] + "," + coords[1] + ")" : null;
+    })
+    .attr("r", d => radius(d.haunted_places_count))
+    .attr("fill", d => color(d.haunted_places_count))
+    .on("mouseover", (event, d) => {
+      tooltip.transition().duration(200).style("opacity", .9);
+      tooltip.html(`${d.City}, ${d.State}<br>${d.haunted_places_count} haunted places`)
+             .style("left", (event.pageX + 10) + "px")
+             .style("top", (event.pageY - 28) + "px");
+    })
+    .on("mouseout", () => {
+      tooltip.transition().duration(500).style("opacity", 0);
+    });
+});
+</script>
+</body>
+</html>
