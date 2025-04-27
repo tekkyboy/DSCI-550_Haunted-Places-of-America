@@ -9,7 +9,7 @@
 
   <script>
     // Correct URL to load the raw JSON file from GitHub
-    const imported_js_data = d3.json("https://raw.githubusercontent.com/tekkyboy/DSCI-550_Haunted-Places-of-America/main/DSCI-550_Visualizations_JSON/haunted_places.json").then(function(imported_js_data) {
+    const imported_js_data = d3.json("DSCI-550_Visualizations_JSON/haunted_places.json").then(function(imported_js_data) {
       
       const svg = d3.select("svg");
       const width = 1300, height = 1300;  // Reduce size for better visibility
