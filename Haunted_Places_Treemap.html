@@ -1,97 +1,76 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Treemap Example</title>
   <script src="https://d3js.org/d3.v7.min.js"></script>
+  <style>
+    body {
+      font-family: sans-serif;
+    }
+    svg {
+      width: 100%;
+      height: 800px;
+    }
+  </style>
 </head>
 <body>
-  <h1>Treemap: Cities within States</h1> <!-- Fixed the header tag -->
-  <svg style="border:1px solid black;"></svg>
 
-  <script>
-    // Correct URL to load the raw JSON file from GitHub
-    const imported_js_data = d3.json("DSCI-550_Visualizations_JSON/haunted_places.json").then(function(imported_js_data) {
-      
-      const svg = d3.select("svg");
-      const width = 1300, height = 1300;  // Reduce size for better visibility
-      const margin = { top: 20, right: 30, bottom: 40, left: 90 };
+<h1>Treemap Example</h1>
+<svg></svg>
 
-      const colorScale = d3.scaleOrdinal(d3.schemeCategory10)
-        .domain(imported_js_data.children.map(d => d.name));  // Map colors to states
-
-      const root = d3.hierarchy(imported_js_data)
-        .sum(d => d.value);  // Use the value field to size the rectangles
-
-      const treemapLayout = d3.treemap()
-        .size([width, height])
-        .padding(2);
-
-      treemapLayout(root);  // Apply the treemap layout to the hierarchy data
-
-      svg.attr("width", width).attr("height", height);
-
-      // Create a group to hold all treemap elements (to support zooming)
-      const g = svg.append("g");
-
-      // Create rectangles for each state
-      g.selectAll("rect.state")
-        .data(root.children)  // Use the child nodes of the root (i.e., states)
-        .enter()
-        .append("rect")
-        .attr("class", "state")
-        .attr("x", d => d.x0)
-        .attr("y", d => d.y0)
-        .attr("width", d => d.x1 - d.x0)
-        .attr("height", d => d.y1 - d.y0)
-        .attr("fill", d => colorScale(d.data.name));  // Assign unique color based on state
-
-      // Add text labels for each state
-      g.selectAll("text.state")
-        .data(root.children)
-        .enter()
-        .append("text")
-        .attr("class", "state")
-        .attr("x", d => (d.x0 + d.x1) / 2)
-        .attr("y", d => (d.y0 + d.y1) / 2)
-        .attr("alignment-baseline", "middle")
-        .attr("text-anchor", "middle")
-        .text(d => d.data.name);
-
-      // Create rectangles for each city within the state
-      g.selectAll("rect.city")
-        .data(root.leaves())
-        .enter()
-        .append("rect")
-        .attr("class", "city")
-        .attr("x", d => d.x0)
-        .attr("y", d => d.y0)
-        .attr("width", d => d.x1 - d.x0)
-        .attr("height", d => d.y1 - d.y0)
-        .attr("fill", d => colorScale(d.parent.data.name));
-
-      // Add text labels for each city
-      g.selectAll("text.city")
-        .data(root.leaves())
-        .enter()
-        .append("text")
-        .attr("class", "city")
-        .attr("x", d => (d.x0 + d.x1) / 2)
-        .attr("y", d => (d.y0 + d.y1) / 2)
-        .attr("alignment-baseline", "middle")
-        .attr("text-anchor", "middle")
-        .text(d => d.data.name);
-
-      // Enable zoom functionality
-      const zoom = d3.zoom()
-        .scaleExtent([0.5, 10])
-        .translateExtent([[0, 0], [width, height]])
-        .on("zoom", zoomed);
-
-      svg.call(zoom);
-
-      function zoomed(event) {
-        g.attr("transform", event.transform);  // Apply the zoom transformation
+<script>
+  // Load your data here
+  const data = {
+    "name": "root",
+    "children": [
+      {
+        "name": "Category 1",
+        "children": [
+          {"name": "Item 1", "value": 10},
+          {"name": "Item 2", "value": 20}
+        ]
+      },
+      {
+        "name": "Category 2",
+        "children": [
+          {"name": "Item 3", "value": 30},
+          {"name": "Item 4", "value": 40}
+        ]
       }
-    });
-  </script>
+    ]
+  };
+
+  const width = 900, height = 600;
+
+  const treemap = d3.treemap()
+    .size([width, height])
+    .padding(1);
+
+  const root = d3.hierarchy(data)
+    .sum(d => d.value);
+
+  treemap(root);
+
+  const svg = d3.select("svg");
+
+  const cell = svg.selectAll("g")
+    .data(root.leaves())
+    .enter().append("g")
+    .attr("transform", d => `translate(${d.x0},${d.y0})`);
+
+  cell.append("rect")
+    .attr("width", d => d.x1 - d.x0)
+    .attr("height", d => d.y1 - d.y0)
+    .style("fill", "#69b3a2");
+
+  cell.append("text")
+    .attr("x", 5)
+    .attr("y", 20)
+    .style("font-size", "14px")
+    .text(d => d.data.name);
+</script>
+
 </body>
 </html>
