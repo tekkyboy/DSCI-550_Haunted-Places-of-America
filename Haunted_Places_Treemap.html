@@ -25,15 +25,18 @@ var svg = d3.select("#my_dataviz")
 // Load the JSON data
 d3.json("DSCI-550_Visualizations_JSON/better_city_state_treemap_data.json", function(data) {
 
-  // Give the data to this hierarchy layout:
-  var root = d3.hierarchy(data)
-    .sum(function(d){ return d.total_instances }) // Sum instances for each state
-  
-  // Compute the treemap layout
-  d3.treemap()
+var root = d3.hierarchy(data)
+    .sum(function(d){ return d.total_instances });
+
+console.log(root);  // Log the hierarchy data to the console
+
+d3.treemap()
     .size([width, height])
     .padding(10)
-    (root)
+    (root);
+
+console.log(root.leaves());  // Log the leaves (individual city data) to check the treemap output
+
 
   // Prepare a color scale
   var color = d3.scaleOrdinal(d3.schemeCategory10);
