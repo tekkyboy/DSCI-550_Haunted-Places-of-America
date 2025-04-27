@@ -2,6 +2,172 @@
 <html>
 <head>
   <script src="https://d3js.org/d3.v7.min.js"></script>
+  <meta charset="utf-8">
+    <!-- Ensures proper rendering and touch zooming on mobile devices -->
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Haunted Places of America - USC Data Science</title>
+    <!-- Bootstrap CSS for styling and responsive design -->
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        /* Base styles for body and html for full height and font */
+       /* We can change the font-family later */
+        body, html {
+            height: 100%;
+            margin: 0;
+            font-family: 'Trebuchet MS', Helvetica, sans-serif;
+            padding-top: 70px; /* Padding to ensure content is below the navbar */
+        }
+		
+        /* Custom styles for the navbar with USC colors */
+        .navbar-custom {
+            background-color: #8B0000;
+            color: #ffffff;
+            border-bottom: 4px solid #b22222;
+        }
+		
+        /* Custom styles for brand and links in the navbar */
+        .navbar-custom .navbar-brand,
+        .navbar-custom .navbar-nav .nav-link {
+            color: #ffff00; 
+            margin-left: -15px; 
+        }
+		
+        /* Hover effect for navbar links */
+        .navbar-custom .navbar-nav .nav-link:hover {
+            color: #ffe5e5;
+        }
+		
+        /* Intro section styles with flex grow to fill available space */
+        .intro-section {
+            color: #fff;
+            text-shadow: 2px 2px 4px #000000;
+            flex-grow: 1;
+        }
+		
+        /* Title styles for the main heading */
+        .title {
+            font-size: 4em;
+            font-weight: bold;
+            margin-bottom: 0.5em;
+            color: #800000;
+        }
+		
+        /* Button styles for page scrolling */
+        .page-scroll {
+            position: relative;
+            background-color: #1B998B;
+            color: white;
+            padding: 10px 20px;
+            font-size: 1.2em;
+            border-radius: 20px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+            overflow: hidden;
+        }
+		
+        /* Hover effect for the button with scaling */
+        .page-scroll:hover {
+            background-color: #E8A87C;
+            transform: scale(1.05);
+        }
+		
+        /* Pseudo-elements for decorative purposes on the button */
+        .page-scroll:before, .page-scroll:after {
+            content: '';
+            position: absolute;
+            top: 0;
+            width: 20px;
+            height: 100%;
+            background-color: #1B998B;
+        }
+		
+        /* Additional pseudo-element styles for the button */
+        .page-scroll:before {
+            left: 0;
+            border-radius: 50% 20% / 50%;
+            background-color: inherit;
+        }
+		
+        .page-scroll:after {
+            right: 0;
+            border-radius: 20% 50% / 50%;
+            background-color: inherit;
+        }
+		
+        /* Styles for hidden content sections, will be displayed upon action */
+        .content-section {
+            display: none;
+            padding: 50px 0;
+        }
+		
+        /* Styling for iframe elements within content sections */
+        .content-section iframe {
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+            margin-bottom: 30px;
+        }
+		
+        /* Footer styles with background color and text formatting */
+        footer {
+            background: #233D4D;
+            color: #fff;
+            text-align: center;
+            padding: 10px 0;
+            margin-top: auto;
+            font-size: 0.8em;
+        }
+		
+        /* USC logo styles for positioning and size */
+        .usc-logo {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            width: 120px;
+        }
+		
+        /* Button styles specific to visualization controls */
+        .btn-visualization {
+            background-color: #006400;
+            color: white;
+            margin: 5px;
+        }
+		
+        /* Hover effect for visualization control buttons */
+        .btn-visualization:hover {
+            background-color: #004d00;
+        }
+		
+	/* Styles for the textbox that provides analysis */
+	.analysis-textbox {
+        background-color: #f8f9fa; /* Light background for the textbox */
+        border: 1px solid #ced4da;
+        border-radius: 0.25rem;
+        padding: 15px;
+        margin-top: 15px;
+        }
+
+      /*We can fix this later*/
+	/* Override styles for the analysis textbox to match the Bigfoot theme */
+	.analysis-textbox {
+        background-color: #443322; /* Dark wood-like color for Bigfoot theme */
+        color: #fff; /* Light text color for readability */
+        border: 1px solid #8B7355; /* Border color that complements the theme */
+        border-radius: 0.25rem;
+        padding: 15px;
+        margin-bottom: 15px; /* Adjust margin to separate from visualization */
+        font-family: 'Courier New', Courier, monospace; /* Font that fits the old newspaper or typewriter style */
+        font-size: 1.1em; /* Slightly larger font size for better readability */
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.5); /* Subtle shadow for depth */
+        }
+		
+        /* Additional styling for iframe elements to adjust margin */
+        .content-section iframe {
+            margin-top: 0; /* Remove margin-top as the textbox is now above the iframe */
+        }
+		
+    </style>
 </head>
 <body>
   <h3>Histogram</h3>
@@ -68,6 +234,11 @@
           .attr("text-anchor", "start")
           .text("↑ Frequency (No. of Haunted Places)"));
   });
+
+    <footer>
+        <p>© USC Data Science Group 2025. All Rights Reserved.</p>
+    </footer>
+    
   </script>
 </body>
 </html>
