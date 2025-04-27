@@ -28,9 +28,13 @@ var svg = d3.select("svg"),
     width = +svg.attr("width"),
     height = +svg.attr("height");
 
-var fader = function(color) { return d3.interpolateRgb(color, "#fff")(0.2); },
-    color = d3.scaleOrdinal(d3.schemeCategory20.map(fader)),
-    format = d3.format(",d");
+// Example with D3 v7 (or higher)
+var fader = function(color) { return d3.interpolateRgb(color, "#fff")(0.2); };
+
+// Use d3.schemeCategory10 or a custom array
+var color = d3.scaleOrdinal(d3.schemeCategory10.map(fader));
+
+var format = d3.format(",d");
 
 var treemap = d3.treemap()
     .tile(d3.treemapResquarify)
