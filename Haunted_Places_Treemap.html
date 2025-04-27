@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <script src="https://d3js.org/d3.v7.min.js"></script>
+</head>
+<body>
+  <h1>Treemap: Cities within States</h3>
+  <svg style="border:1px solid black;"></svg>
+
+  <script>
+    // Update with the raw link to the hosted JSON file
+    const imported_js_data = d3.json("https://raw.githubusercontent.com/tekkyboy/DSCI-550_Haunted-Places-of-America/blob/main/DSCI-550_Visualizations_JSON/haunted_places.json").then(function(imported_js_data) {
+      const svg = d3.select("svg");
+      const width = 13000, height = 13000;
+      const margin = { top: 20, right: 30, bottom: 40, left: 90 };
+
+      const colorScale = d3.scaleOrdinal(d3.schemeCategory10)
+        .domain(imported_js_data.children.map(d => d.name));  // Map colors to states
+
+      const root = d3.hierarchy(imported_js_data)
+        .sum(d => d.value);  // Use the value field to size the rectangles
+
+      const treemapLayout = d3.treemap()
+        .size([width, height])
+        .padding(2);
+
+      treemapLayout(root);  // Apply the treemap layout to the hierarchy data
+
+      svg.attr("width", width).attr("height", height);
+
+    // Create rectangles for each state
+    svg.selectAll("rect.state")
+      .data(root.children)  // Use the child nodes of the root (i.e., states)
+      .enter()
+      .append("rect")
+      .attr("class", "state")
+      .attr("x", d => d.x0)
+      .attr("y", d => d.y0)
+      .attr("width", d => d.x1 - d.x0)
+      .attr("height", d => d.y1 - d.y0)
+      .attr("fill", d => colorScale(d.data.name));  // Assign unique color based on state
+
+    // Add text labels for each state
+    svg.selectAll("text.state")
+      .data(root.children)
+      .enter()
+      .append("text")
+      .attr("class", "state")
+      .attr("x", d => (d.x0 + d.x1) / 2)
+      .attr("y", d => (d.y0 + d.y1) / 2)
+      .attr("alignment-baseline", "middle")
+      .attr("text-anchor", "middle")
+      .text(d => d.data.name);
+
+      // Create rectangles for each city within the state
+      svg.selectAll("rect.city")
+        .data(root.leaves())
+        .enter()
+        .append("rect")
+        .attr("class", "city")
+        .attr("x", d => d.x0)
+        .attr("y", d => d.y0)
+        .attr("width", d => d.x1 - d.x0)
+        .attr("height", d => d.y1 - d.y0)
+        .attr("fill", d => colorScale(d.parent.data.name));
+
+      // Add text labels for each city
+      svg.selectAll("text.city")
+        .data(root.leaves())
+        .enter()
+        .append("text")
+        .attr("class", "city")
+        .attr("x", d => (d.x0 + d.x1) / 2)
+        .attr("y", d => (d.y0 + d.y1) / 2)
+        .attr("alignment-baseline", "middle")
+        .attr("text-anchor", "middle")
+        .text(d => d.data.name);
+
+      // Enable zoom functionality
+      const zoom = d3.zoom()
+        .scaleExtent([0.5, 10])
+        .translateExtent([[0, 0], [width, height]])
+        .on("zoom", zoomed);
+
+      svg.call(zoom);
+
+      function zoomed(event) {
+        svg.attr("transform", event.transform);  // Apply the zoom transformation
+      }
+    });
+  </script>
+</body>
+</html>
