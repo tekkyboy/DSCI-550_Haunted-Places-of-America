@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Treemap Example</title>
+  <title>Zoomable Treemap Example</title>
   <script src="https://d3js.org/d3.v7.min.js"></script>
   <style>
     body {
@@ -17,13 +17,13 @@
 </head>
 <body>
 
-<h1>Treemap Example</h1>
+<h1>Zoomable Treemap Example</h1>
 <svg></svg>
 
 <script>
-  // Load your data here
+  // Sample nested data
   const data = {
-    "name": "root",
+    "name": "Root",
     "children": [
       {
         "name": "Category 1",
@@ -44,32 +44,55 @@
 
   const width = 900, height = 600;
 
+  // Create a treemap layout
   const treemap = d3.treemap()
     .size([width, height])
     .padding(1);
 
+  // Hierarchical data structure
   const root = d3.hierarchy(data)
     .sum(d => d.value);
 
   treemap(root);
 
-  const svg = d3.select("svg");
+  const svg = d3.select("svg")
+    .attr("viewBox", [0, 0, width, height]);
 
-  const cell = svg.selectAll("g")
-    .data(root.leaves())
+  // Create a group to contain the cells
+  const g = svg.append("g");
+
+  // Create a zoom behavior
+  const zoom = d3.zoom()
+    .scaleExtent([1, 10])  // Set the min and max zoom levels
+    .on("zoom", zoomed);
+
+  // Apply the zoom behavior to the SVG container
+  svg.call(zoom);
+
+  // Create nested groups for each node in the hierarchy
+  const cell = g.selectAll("g")
+    .data(root.descendants())
     .enter().append("g")
     .attr("transform", d => `translate(${d.x0},${d.y0})`);
 
+  // Create rectangles for each node
   cell.append("rect")
     .attr("width", d => d.x1 - d.x0)
     .attr("height", d => d.y1 - d.y0)
-    .style("fill", "#69b3a2");
+    .style("fill", d => d.children ? "#ccc" : "#69b3a2")
+    .style("stroke", "#fff");
 
+  // Add text to each leaf node
   cell.append("text")
     .attr("x", 5)
     .attr("y", 20)
     .style("font-size", "14px")
     .text(d => d.data.name);
+
+  // Zoom function that adjusts the translation and scaling of the treemap
+  function zoomed(event) {
+    g.attr("transform", event.transform);
+  }
 </script>
 
 </body>
