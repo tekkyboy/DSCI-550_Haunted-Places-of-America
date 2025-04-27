@@ -3,97 +3,118 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Zoomable Treemap Example</title>
+  <title>Zoomable Treemap</title>
   <script src="https://d3js.org/d3.v7.min.js"></script>
   <style>
     body {
       font-family: sans-serif;
     }
     svg {
-      width: 100%;
-      height: 800px;
+      border: 1px solid black;
     }
   </style>
 </head>
 <body>
 
-<h1>Zoomable Treemap Example</h1>
-<svg></svg>
+<h3>Interactive Treemap: Cities in States</h3>
+<svg width="960" height="600"></svg>
 
 <script>
-  // Sample nested data
+  const width = 960;
+  const height = 600;
+
+  // Example of hierarchical data
   const data = {
-    "name": "Root",
+    "name": "USA",
     "children": [
       {
-        "name": "Category 1",
+        "name": "California",
         "children": [
-          {"name": "Item 1", "value": 10},
-          {"name": "Item 2", "value": 20}
+          { "name": "Los Angeles", "value": 100 },
+          { "name": "San Francisco", "value": 50 }
         ]
       },
       {
-        "name": "Category 2",
+        "name": "New York",
         "children": [
-          {"name": "Item 3", "value": 30},
-          {"name": "Item 4", "value": 40}
+          { "name": "New York City", "value": 80 },
+          { "name": "Buffalo", "value": 40 }
         ]
       }
     ]
   };
 
-  const width = 900, height = 600;
+  const svg = d3.select("svg"),
+        margin = {top: 20, right: 30, bottom: 40, left: 90},
+        width = svg.attr("width") - margin.left - margin.right,
+        height = svg.attr("height") - margin.top - margin.bottom;
 
-  // Create a treemap layout
-  const treemap = d3.treemap()
-    .size([width, height])
-    .padding(1);
+  const treemap = d3.treemap().size([width, height]).padding(1);
+  let root;
 
-  // Hierarchical data structure
-  const root = d3.hierarchy(data)
-    .sum(d => d.value);
-
+  // Create a root node from the hierarchical data
+  root = d3.hierarchy(data).sum(d => d.value);
   treemap(root);
 
-  const svg = d3.select("svg")
-    .attr("viewBox", [0, 0, width, height]);
+  // Create a zoom function
+  const zoom = d3.zoom().on("zoom", (event) => {
+    svg.attr("transform", event.transform);
+  });
 
-  // Create a group to contain the cells
-  const g = svg.append("g");
-
-  // Create a zoom behavior
-  const zoom = d3.zoom()
-    .scaleExtent([1, 10])  // Set the min and max zoom levels
-    .on("zoom", zoomed);
-
-  // Apply the zoom behavior to the SVG container
   svg.call(zoom);
 
-  // Create nested groups for each node in the hierarchy
-  const cell = g.selectAll("g")
-    .data(root.descendants())
+  // Create the rectangles for the treemap
+  const cells = svg.selectAll("g")
+    .data(root.leaves())
     .enter().append("g")
     .attr("transform", d => `translate(${d.x0},${d.y0})`);
 
-  // Create rectangles for each node
-  cell.append("rect")
+  cells.append("rect")
     .attr("width", d => d.x1 - d.x0)
     .attr("height", d => d.y1 - d.y0)
-    .style("fill", d => d.children ? "#ccc" : "#69b3a2")
-    .style("stroke", "#fff");
+    .style("fill", "steelblue")
+    .style("stroke", "white");
 
-  // Add text to each leaf node
-  cell.append("text")
+  cells.append("text")
     .attr("x", 5)
-    .attr("y", 20)
-    .style("font-size", "14px")
-    .text(d => d.data.name);
+    .attr("y", 15)
+    .text(d => d.data.name)
+    .style("fill", "white");
 
-  // Zoom function that adjusts the translation and scaling of the treemap
-  function zoomed(event) {
-    g.attr("transform", event.transform);
+  // Add zoom functionality for state-level interaction
+  svg.on("click", function(event) {
+    const coords = d3.pointer(event);
+    const clickedNode = root.descendants().find(d => 
+      coords[0] >= d.x0 && coords[0] <= d.x1 && coords[1] >= d.y0 && coords[1] <= d.y1
+    );
+
+    if (clickedNode && clickedNode.depth === 1) { // Check if it's a state node
+      root = clickedNode;
+      treemap(root);
+      updateTreemap();
+    }
+  });
+
+  // Function to update the treemap
+  function updateTreemap() {
+    const cells = svg.selectAll("g")
+      .data(root.leaves(), d => d.data.name)
+      .join("g")
+      .attr("transform", d => `translate(${d.x0},${d.y0})`);
+
+    cells.append("rect")
+      .attr("width", d => d.x1 - d.x0)
+      .attr("height", d => d.y1 - d.y0)
+      .style("fill", "steelblue")
+      .style("stroke", "white");
+
+    cells.append("text")
+      .attr("x", 5)
+      .attr("y", 15)
+      .text(d => d.data.name)
+      .style("fill", "white");
   }
-</script>
 
+</script>
 </body>
 </html>
