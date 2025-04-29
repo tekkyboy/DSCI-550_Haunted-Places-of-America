@@ -270,14 +270,37 @@ d3.json("https://raw.githubusercontent.com/tekkyboy/DSCI-550_Haunted-Places-of-A
       .attr("y", 16)
       .text(d => `${d.data.name} (${d.data._totalValue})`);
 
-    // Zoom behavior
-    const zoom = d3.zoom()
-      .scaleExtent([0.5, 20])  // Allow deeper zoom in
-      .on("zoom", (event) => {
-        container.attr("transform", event.transform);
-      });
+const zoom = d3.zoom()
+  .scaleExtent([0.5, 20])
+  .on("zoom", (event) => {
+    container.attr("transform", event.transform);
 
-    svg.call(zoom);
+    const zoomLevel = event.transform.k; // Get current zoom scale
+
+    if (zoomLevel < 3) {
+      // Far away: show states, hide cities
+      svg.selectAll(".state-label")
+        .transition().duration(200)
+        .style("opacity", 1);
+
+      svg.selectAll(".label")
+        .transition().duration(200)
+        .style("opacity", 0);
+    } else {
+      // Zoomed in: show cities, hide states
+      svg.selectAll(".state-label")
+        .transition().duration(200)
+        .style("opacity", 0);
+
+      svg.selectAll(".label")
+        .transition().duration(200)
+        .style("opacity", 1);
+    }
+  });
+
+svg.call(zoom);
+
+
   });
 </script>
 
