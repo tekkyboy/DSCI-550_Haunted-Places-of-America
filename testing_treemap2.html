@@ -204,8 +204,8 @@
         </p>
     </div>
   
-<div style="width: 200%; overflow-x: auto;">
-  <svg id="treemap" viewBox="0 0 3000 3000" preserveAspectRatio="xMidYMid meet" width="200%" height="2000"></svg>
+<div style="width: 100%; overflow-x: auto;">
+  <svg id="treemap" viewBox="0 0 3000 3000" preserveAspectRatio="xMidYMid meet" style="width: 1500px; height: auto; display: block; margin: auto;"></svg>
 </div>
 
 <script>
@@ -244,34 +244,44 @@ d3.json("https://raw.githubusercontent.com/tekkyboy/DSCI-550_Haunted-Places-of-A
       .paddingTop(d => d.depth === 1 ? 16 : 0)
       (root);
 
-    // Group separation
-    const stateGroup = svg.append("g").attr("class", "states");
-    const cityGroup = svg.append("g").attr("class", "cities");
+	const svg = d3.select("#treemap");
+	const container = svg.append("g");  // Add this wrapper g
 
-    const nodes = root.descendants();
+	const zoom = d3.zoom()
+  	.scaleExtent([0.5, 10])
+  	.on("zoom", (event) => {
+    	container.attr("transform", event.transform);
+  	});
 
-    // Cities (depth 2)
-    const cities = cityGroup.selectAll("g")
-      .data(nodes.filter(d => d.depth === 2))
-      .join("g")
-      .attr("transform", d => `translate(${d.x0},${d.y0})`);
+	svg.call(zoom);
 
-    cities.append("rect")
-      .attr("width", d => d.x1 - d.x0)
-      .attr("height", d => d.y1 - d.y0)
-      .attr("fill", d => color(d.parent.parent.children.indexOf(d.parent)));
+	const stateGroup = container.append("g").attr("class", "states");
+	const cityGroup = container.append("g").attr("class", "cities");
 
-    cities.append("text")
-      .attr("class", "label")
-      .attr("x", 4)
-      .attr("y", 14)
-      .attr("font-size", d => {
-        const boxWidth = d.x1 - d.x0;
-        const boxHeight = d.y1 - d.y0;
-        const nameLength = d.data.name.length + 5;
-        return Math.min((boxWidth / nameLength) * 1.5, boxHeight * 0.6, 12);
-      })
-      .text(d => `${d.data.name} (${d.data._originalValue})`);
+    	const nodes = root.descendants();
+
+   	 // Cities (depth 2)
+    	const cities = cityGroup.selectAll("g")
+     	 .data(nodes.filter(d => d.depth === 2))
+     	 .join("g")
+     	 .attr("transform", d => `translate(${d.x0},${d.y0})`);
+
+    	cities.append("rect")
+    	  .attr("width", d => d.x1 - d.x0)
+    	  .attr("height", d => d.y1 - d.y0)
+    	  .attr("fill", d => color(d.parent.parent.children.indexOf(d.parent)));
+
+  	  cities.append("text")
+  	  .attr("class", "label")
+    	  .attr("x", 4)
+    	  .attr("y", 14)
+    	  .attr("font-size", d => {
+     	   const boxWidth = d.x1 - d.x0;
+    	   const boxHeight = d.y1 - d.y0;
+           const nameLength = d.data.name.length + 5;
+           return Math.min((boxWidth / nameLength) * 1.5, boxHeight * 0.6, 12);
+         })
+         .text(d => `${d.data.name} (${d.data._originalValue})`);
 
     // States (depth 1)
     const states = stateGroup.selectAll("g")
