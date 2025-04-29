@@ -74,7 +74,15 @@ d3.json("https://raw.githubusercontent.com/tekkyboy/DSCI-550_Haunted-Places-of-A
     .attr("class", "label")
     .attr("x", 4)
     .attr("y", 14)
+    .attr("font-size", d => {
+    const boxWidth = d.x1 - d.x0;
+    const boxHeight = d.y1 - d.y0;
+    const nameLength = d.data.name.length + 5; // name + value extra characters
+    // Font size shrinks if box is too narrow
+    return Math.min((boxWidth / nameLength) * 1.5, boxHeight * 0.6, 12); // 12px max
+    })
     .text(d => `${d.data.name} (${d.data._originalValue})`);
+
     
   // State Labels with Total Value
   node.filter(d => d.depth === 1).append("text")
