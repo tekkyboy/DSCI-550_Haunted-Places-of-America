@@ -32,19 +32,30 @@ d3.json("https://raw.githubusercontent.com/tekkyboy/DSCI-550_Haunted-Places-of-A
     const width = 11000, height = 11000;
     const svg = d3.select("svg");
 
-    const color = d3.scaleOrdinal(d3.schemeCategory10);
+    const numberOfStates = data.children.length;
 
+    const color = d3.scaleSequential()
+    .domain([0, numberOfStates])
+    .interpolator(d3.interpolateRainbow);
+    
     const root = d3.hierarchy(data)
     .eachAfter(d => {
-      // If it's a city (leaf), store its own value
-      if (!d.children) {
-        d.data._originalValue = d.data.value || 0;
-      } else {
-        // If it's a state, sum the values of its children
-        d.data._totalValue = d.children.reduce((sum, child) => sum + (child.data._originalValue || 0), 0);
-      }
+    if (!d.children) {
+      d.data._originalValue = d.data.value || 0;
+    } else {
+      d.data._totalValue = d.children.reduce((sum, child) => sum + (child.data._originalValue || 0), 0);
+    }
     })
-    .count();  // Uniform sizes for cities
+    .sort((a, b) => {
+      if (a.depth !== b.depth) return a.depth - b.depth; // always keep parents before children
+      if (a.depth === 1) {
+      // At state level (depth 1), sort by _totalValue descending
+      return (b.data._totalValue || 0) - (a.data._totalValue || 0);
+      }
+      return 0; // No specific order for cities
+    })
+    .count();  // still needed to set up the layout
+
 
 
   d3.treemap()
@@ -60,14 +71,18 @@ d3.json("https://raw.githubusercontent.com/tekkyboy/DSCI-550_Haunted-Places-of-A
       .join("g")
       .attr("transform", d => `translate(${d.x0},${d.y0})`);
 
-    node.append("rect")
-      .attr("width", d => d.x1 - d.x0)
-      .attr("height", d => d.y1 - d.y0)
-      .attr("fill", d => {
-        if (d.depth === 1) return color(d.data.name);
-        if (d.parent) return color(d.parent.data.name);
-        return "#ccc";
-      });
+  node.append("rect")
+    .attr("width", d => d.x1 - d.x0)
+    .attr("height", d => d.y1 - d.y0)
+    .attr("fill", d => {
+      if (d.depth === 1) {
+        return color(d.parent.children.indexOf(d));
+      }
+      if (d.parent) {
+        return color(d.parent.parent.children.indexOf(d.parent));
+      }
+      return "#ccc";
+    });
 
   // City Labels (uniform size, but show actual value)
   node.filter(d => !d.children).append("text")
