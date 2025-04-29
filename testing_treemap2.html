@@ -264,11 +264,19 @@ d3.json("https://raw.githubusercontent.com/tekkyboy/DSCI-550_Haunted-Places-of-A
       .attr("height", d => d.y1 - d.y0)
       .attr("fill", d => color(d.parent.children.indexOf(d)));
 
-    states.append("text")
-      .attr("class", "state-label")
-      .attr("x", 4)
-      .attr("y", 16)
-      .text(d => `${d.data.name} (${d.data._totalValue})`);
+  states.append("text")
+    .attr("class", "state-label")
+    .attr("x", d => (d.x1 - d.x0) / 2)  // Center x within the state rectangle
+    .attr("y", d => (d.y1 - d.y0) / 2)  // Center y within the state rectangle
+    .attr("text-anchor", "middle")      // Center align the text horizontally
+    .attr("dominant-baseline", "middle") // Center align vertically
+    .style("font-size", d => {
+      const width = d.x1 - d.x0;
+      const height = d.y1 - d.y0;
+      return Math.max(Math.min(width, height) * 0.15, 16) + "px";  // Minimum 16px font
+    })
+    .text(d => `${d.data.name} (${d.data._totalValue})`);
+
 
 const zoom = d3.zoom()
   .scaleExtent([0.5, 20])
