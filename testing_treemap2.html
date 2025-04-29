@@ -47,10 +47,13 @@ d3.json("https://raw.githubusercontent.com/tekkyboy/DSCI-550_Haunted-Places-of-A
     .count();  // Uniform sizes for cities
 
 
-    d3.treemap()
-      .size([width, height])
-      .paddingInner(1)
-      .paddingTop(d => d.depth === 1 ? 20 : 0)(root);
+  d3.treemap()
+    .size([width, height])
+    .paddingInner(0.5)    // ↓ smaller gap between cities
+    .paddingOuter(1)      // slight gap around entire block
+    .paddingTop(d => d.depth === 1 ? 16 : 0) // space for state labels only
+    (root);
+
 
     const node = svg.selectAll("g")
       .data(root.descendants())
