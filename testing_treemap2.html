@@ -159,101 +159,128 @@
   </div>
 
   <!-- D3 Script -->
-  <script>
-    d3.json("https://raw.githubusercontent.com/tekkyboy/DSCI-550_Haunted-Places-of-America/main/DSCI-550_Visualizations_JSON/treemap_data_sorted.json")
-      .then(function(data) {
-        const width = 3000, height = 3000;
-        const svg = d3.select("#treemap");
+<script>
+d3.json("https://raw.githubusercontent.com/tekkyboy/DSCI-550_Haunted-Places-of-America/main/DSCI-550_Visualizations_JSON/treemap_data_sorted.json")
+  .then(function(data) {
+    const width = 3000, height = 3000;
+    const svg = d3.select("#treemap");
 
-        const container = svg.append("g"); // Master group
+    const container = svg.append("g"); // Master group for zooming
 
-        const numberOfStates = data.children.length;
+    const numberOfStates = data.children.length;
 
-        const color = d3.scaleSequential()
-          .domain([0, numberOfStates])
-          .interpolator(d3.interpolateRainbow);
+    const color = d3.scaleSequential()
+      .domain([0, numberOfStates])
+      .interpolator(d3.interpolateRainbow);
 
-        const root = d3.hierarchy(data)
-          .eachAfter(d => {
-            if (!d.children) {
-              d.data._originalValue = d.data.value || 0;
-            } else {
-              d.data._totalValue = d.children.reduce((sum, child) => sum + (child.data._originalValue || 0), 0);
-            }
-          })
-          .sort((a, b) => {
-            if (a.depth !== b.depth) return a.depth - b.depth;
-            if (a.depth === 1) {
-              return (b.data._totalValue || 0) - (a.data._totalValue || 0);
-            }
-            return 0;
-          })
-          .count();
+    const root = d3.hierarchy(data)
+      .eachAfter(d => {
+        if (!d.children) {
+          d.data._originalValue = d.data.value || 0;
+        } else {
+          d.data._totalValue = d.children.reduce((sum, child) => sum + (child.data._originalValue || 0), 0);
+        }
+      })
+      .sort((a, b) => {
+        if (a.depth !== b.depth) return a.depth - b.depth;
+        if (a.depth === 1) {
+          return (b.data._totalValue || 0) - (a.data._totalValue || 0);
+        }
+        return 0;
+      })
+      .count();
 
-        d3.treemap()
-          .size([width, height])
-          .paddingInner(0.5)
-          .paddingOuter(1)
-          .paddingTop(d => d.depth === 1 ? 16 : 0)
-          (root);
+    d3.treemap()
+      .size([width, height])
+      .paddingInner(0.5)
+      .paddingOuter(1)
+      .paddingTop(d => d.depth === 1 ? 16 : 0)
+      (root);
 
-        const stateGroup = container.append("g").attr("class", "states");
-        const cityGroup = container.append("g").attr("class", "cities");
+    const stateGroup = container.append("g").attr("class", "states");
+    const cityGroup = container.append("g").attr("class", "cities");
 
-        const nodes = root.descendants();
+    const nodes = root.descendants();
 
-        // Cities
-        cityGroup.selectAll("g")
-          .data(nodes.filter(d => d.depth === 2))
-          .join("g")
-          .attr("transform", d => `translate(${d.x0},${d.y0})`)
-          .call(g => {
-            g.append("rect")
-              .attr("width", d => d.x1 - d.x0)
-              .attr("height", d => d.y1 - d.y0)
-              .attr("fill", d => color(d.parent.parent.children.indexOf(d.parent)));
+    // Tooltip for cities
+    const tooltip = d3.select("body").append("div")
+      .style("position", "absolute")
+      .style("background", "#333")
+      .style("color", "#fff")
+      .style("padding", "5px 10px")
+      .style("border-radius", "5px")
+      .style("visibility", "hidden")
+      .style("font-size", "12px");
 
-            g.append("text")
-              .attr("class", "label")
-              .attr("x", 4)
-              .attr("y", 14)
-              .attr("font-size", d => {
-                const boxWidth = d.x1 - d.x0;
-                const boxHeight = d.y1 - d.y0;
-                const nameLength = d.data.name.length + 5;
-                return Math.min((boxWidth / nameLength) * 1.5, boxHeight * 0.6, 12);
-              })
-              .text(d => `${d.data.name} (${d.data._originalValue})`);
-          });
+    // Cities (depth 2)
+    const cities = cityGroup.selectAll("g")
+      .data(nodes.filter(d => d.depth === 2))
+      .join("g")
+      .attr("transform", d => `translate(${d.x0},${d.y0})`);
 
-        // States
-        stateGroup.selectAll("g")
-          .data(nodes.filter(d => d.depth === 1))
-          .join("g")
-          .attr("transform", d => `translate(${d.x0},${d.y0})`)
-          .call(g => {
-            g.append("rect")
-              .attr("width", d => d.x1 - d.x0)
-              .attr("height", d => d.y1 - d.y0)
-              .attr("fill", d => color(d.parent.children.indexOf(d)));
-
-            g.append("text")
-              .attr("class", "state-label")
-              .attr("x", 4)
-              .attr("y", 16)
-              .text(d => `${d.data.name} (${d.data._totalValue})`);
-          });
-
-        // Zoom behavior
-        const zoom = d3.zoom()
-          .scaleExtent([0.5, 10])
-          .on("zoom", (event) => {
-            container.attr("transform", event.transform);
-          });
-
-        svg.call(zoom);
+    cities.append("rect")
+      .attr("width", d => d.x1 - d.x0)
+      .attr("height", d => d.y1 - d.y0)
+      .attr("fill", d => color(d.parent.parent.children.indexOf(d.parent)))
+      .on("mouseover", (event, d) => {
+        tooltip.style("visibility", "visible")
+          .text(`${d.data.name} (${d.data._originalValue})`);
+      })
+      .on("mousemove", (event) => {
+        tooltip.style("top", (event.pageY - 10) + "px")
+               .style("left", (event.pageX + 10) + "px");
+      })
+      .on("mouseout", () => {
+        tooltip.style("visibility", "hidden");
       });
-  </script>
+
+    cities.append("text")
+      .attr("class", "label")
+      .attr("x", 4)
+      .attr("y", 14)
+      .text(d => {
+        const boxWidth = d.x1 - d.x0;
+        const boxHeight = d.y1 - d.y0;
+        if (boxWidth > 30 && boxHeight > 15) {
+          return `${d.data.name} (${d.data._originalValue})`;
+        }
+        return '';
+      })
+      .attr("font-size", d => {
+        const boxWidth = d.x1 - d.x0;
+        const boxHeight = d.y1 - d.y0;
+        const nameLength = d.data.name.length + 5;
+        return Math.min((boxWidth / nameLength) * 1.5, boxHeight * 0.6, 12);
+      });
+
+    // States (depth 1)
+    const states = stateGroup.selectAll("g")
+      .data(nodes.filter(d => d.depth === 1))
+      .join("g")
+      .attr("transform", d => `translate(${d.x0},${d.y0})`);
+
+    states.append("rect")
+      .attr("width", d => d.x1 - d.x0)
+      .attr("height", d => d.y1 - d.y0)
+      .attr("fill", d => color(d.parent.children.indexOf(d)));
+
+    states.append("text")
+      .attr("class", "state-label")
+      .attr("x", 4)
+      .attr("y", 16)
+      .text(d => `${d.data.name} (${d.data._totalValue})`);
+
+    // Zoom behavior
+    const zoom = d3.zoom()
+      .scaleExtent([0.5, 20])  // Allow deeper zoom in
+      .on("zoom", (event) => {
+        container.attr("transform", event.transform);
+      });
+
+    svg.call(zoom);
+  });
+</script>
+
 
   <!-- Footer -->
   <footer>
