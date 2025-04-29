@@ -69,9 +69,13 @@
 
   // Draw rectangles
   node.append("rect")
-    .attr("width", d => d.x1 - d.x0)
-    .attr("height", d => d.y1 - d.y0)
-    .attr("fill", d => d.depth === 1 ? color(d.data.name) : color(d.parent.data.name));
+  .attr("width", d => d.x1 - d.x0)
+  .attr("height", d => d.y1 - d.y0)
+  .attr("fill", d => {
+    if (d.depth === 1) return color(d.data.name);     // State level
+    if (d.parent) return color(d.parent.data.name);   // City level
+    return "#ccc";                                    // Root fallback
+  });
 
   // City Labels (only if leaves)
   node.filter(d => !d.children).append("text")
