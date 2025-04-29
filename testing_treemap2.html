@@ -29,7 +29,7 @@
 <script>
 d3.json("https://raw.githubusercontent.com/tekkyboy/DSCI-550_Haunted-Places-of-America/main/DSCI-550_Visualizations_JSON/treemap_data_sorted.json")
   .then(function(data) {
-    const width = 10000, height = 10000;
+    const width = 9500, height = 9500;
     const svg = d3.select("svg");
 
     const color = d3.scaleOrdinal(d3.schemeCategory10);
@@ -62,7 +62,7 @@ d3.json("https://raw.githubusercontent.com/tekkyboy/DSCI-550_Haunted-Places-of-A
 
     node.append("rect")
       .attr("width", d => d.x1 - d.x0)
-      .attr("height", d => (d.y1 - d.y0) * 0.7)
+      .attr("height", d => d.y1 - d.y0)
       .attr("fill", d => {
         if (d.depth === 1) return color(d.data.name);
         if (d.parent) return color(d.parent.data.name);
