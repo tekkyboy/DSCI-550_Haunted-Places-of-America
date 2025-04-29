@@ -162,10 +162,10 @@
 <script>
 d3.json("https://raw.githubusercontent.com/tekkyboy/DSCI-550_Haunted-Places-of-America/main/DSCI-550_Visualizations_JSON/treemap_data_sorted.json")
   .then(function(data) {
-    const width = 13000, height = 13000;
+    const width = 13000, height = 13000;  // Use bigger canvas
     const svg = d3.select("#treemap");
 
-    const container = svg.append("g"); // Master group for zooming
+    const container = svg.append("g"); // Main group for zooming
 
     const numberOfStates = data.children.length;
 
@@ -212,7 +212,7 @@ d3.json("https://raw.githubusercontent.com/tekkyboy/DSCI-550_Haunted-Places-of-A
       .style("visibility", "hidden")
       .style("font-size", "12px");
 
-    // Cities (depth 2)
+    // --------- Draw Cities (rectangles first) ----------
     const cities = cityGroup.selectAll("g")
       .data(nodes.filter(d => d.depth === 2))
       .join("g")
@@ -253,66 +253,64 @@ d3.json("https://raw.githubusercontent.com/tekkyboy/DSCI-550_Haunted-Places-of-A
         return Math.min((boxWidth / nameLength) * 1.5, boxHeight * 0.6, 12);
       });
 
-    // States (depth 1)
-    const states = stateGroup.selectAll("g")
+    // --------- Draw States (rectangles) ----------
+    const stateRects = stateGroup.selectAll(".state-rect")
       .data(nodes.filter(d => d.depth === 1))
       .join("g")
       .attr("transform", d => `translate(${d.x0},${d.y0})`);
 
-    states.append("rect")
+    stateRects.append("rect")
+      .attr("class", "state-rect")
       .attr("width", d => d.x1 - d.x0)
       .attr("height", d => d.y1 - d.y0)
       .attr("fill", d => color(d.parent.children.indexOf(d)));
 
-  states.append("text")
-    .attr("class", "state-label")
-    .attr("x", d => (d.x1 - d.x0) / 2)  // Center x within the state rectangle
-    .attr("y", d => (d.y1 - d.y0) / 2)  // Center y within the state rectangle
-    .attr("text-anchor", "middle")      // Center align the text horizontally
-    .attr("dominant-baseline", "middle") // Center align vertically
-    .style("font-size", d => {
-      const width = d.x1 - d.x0;
-      const height = d.y1 - d.y0;
-      return Math.max(Math.min(width, height) * 0.15, 16) + "px";  // Minimum 16px font
-    })
-    .text(d => `${d.data.name} (${d.data._totalValue})`);
+    // --------- Draw State Labels (text on top) ----------
+    const stateLabels = stateGroup.selectAll(".state-label")
+      .data(nodes.filter(d => d.depth === 1))
+      .join("text")
+      .attr("class", "state-label")
+      .attr("x", d => (d.x0 + d.x1) / 2)
+      .attr("y", d => (d.y0 + d.y1) / 2)
+      .attr("text-anchor", "middle")
+      .attr("dominant-baseline", "middle")
+      .style("font-size", d => {
+        const width = d.x1 - d.x0;
+        const height = d.y1 - d.y0;
+        return Math.max(Math.min(width, height) * 0.15, 24) + "px"; // Minimum 24px
+      })
+      .text(d => `${d.data.name} (${d.data._totalValue})`);
 
+    // --------- Zoom Behavior and Label Switching ----------
+    const zoom = d3.zoom()
+      .scaleExtent([0.5, 20])
+      .on("zoom", (event) => {
+        container.attr("transform", event.transform);
 
-const zoom = d3.zoom()
-  .scaleExtent([0.5, 20])
-  .on("zoom", (event) => {
-    container.attr("transform", event.transform);
+        const zoomLevel = event.transform.k;
 
-    const zoomLevel = event.transform.k; // Get current zoom scale
+        if (zoomLevel < 3) {
+          // Far away: show states, hide cities
+          svg.selectAll(".state-label")
+            .transition().duration(200)
+            .style("opacity", 1);
+          svg.selectAll(".label")
+            .transition().duration(200)
+            .style("opacity", 0);
+        } else {
+          // Zoomed in: show cities, hide states
+          svg.selectAll(".state-label")
+            .transition().duration(200)
+            .style("opacity", 0);
+          svg.selectAll(".label")
+            .transition().duration(200)
+            .style("opacity", 1);
+        }
+      });
 
-    if (zoomLevel < 3) {
-      // Far away: show states, hide cities
-      svg.selectAll(".state-label")
-        .transition().duration(200)
-        .style("opacity", 1);
-
-      svg.selectAll(".label")
-        .transition().duration(200)
-        .style("opacity", 0);
-    } else {
-      // Zoomed in: show cities, hide states
-      svg.selectAll(".state-label")
-        .transition().duration(200)
-        .style("opacity", 0);
-
-      svg.selectAll(".label")
-        .transition().duration(200)
-        .style("opacity", 1);
-    }
-  });
-
-svg.call(zoom);
-
-
+    svg.call(zoom);
   });
 </script>
-
-
   <!-- Footer -->
   <footer>
     <p>© USC Data Science Group 2025. All Rights Reserved.</p>
