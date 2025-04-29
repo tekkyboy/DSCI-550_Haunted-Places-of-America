@@ -24,12 +24,12 @@
 </head>
 <body>
 
-<svg width="10000" height="10000"></svg>
+<svg width="11000" height="11000"></svg>
 
 <script>
 d3.json("https://raw.githubusercontent.com/tekkyboy/DSCI-550_Haunted-Places-of-America/main/DSCI-550_Visualizations_JSON/treemap_data_sorted.json")
   .then(function(data) {
-    const width = 9500, height = 9500;
+    const width = 11000, height = 11000;
     const svg = d3.select("svg");
 
     const color = d3.scaleOrdinal(d3.schemeCategory10);
