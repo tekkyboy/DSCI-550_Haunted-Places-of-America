@@ -162,7 +162,7 @@
 <script>
 d3.json("https://raw.githubusercontent.com/tekkyboy/DSCI-550_Haunted-Places-of-America/main/DSCI-550_Visualizations_JSON/treemap_data_sorted.json")
   .then(function(data) {
-    const width = 13000, height = 13000;  // Use bigger canvas
+    const width = 13000, height = 13000;
     const svg = d3.select("#treemap");
 
     const container = svg.append("g"); // Main group for zooming
@@ -199,6 +199,7 @@ d3.json("https://raw.githubusercontent.com/tekkyboy/DSCI-550_Haunted-Places-of-A
 
     const stateGroup = container.append("g").attr("class", "states");
     const cityGroup = container.append("g").attr("class", "cities");
+    const stateLabelsGroup = container.append("g").attr("class", "state-labels"); // NEW group for state labels
 
     const nodes = root.descendants();
 
@@ -257,7 +258,7 @@ d3.json("https://raw.githubusercontent.com/tekkyboy/DSCI-550_Haunted-Places-of-A
     const stateRects = stateGroup.selectAll(".state-rect")
       .data(nodes.filter(d => d.depth === 1))
       .join("g")
-      .attr("transform", d => `translate(${d.x0},${d.y0})`);
+      .attr("transform", d => 'translate(${d.x0},${d.y0})');
 
     stateRects.append("rect")
       .attr("class", "state-rect")
@@ -265,8 +266,8 @@ d3.json("https://raw.githubusercontent.com/tekkyboy/DSCI-550_Haunted-Places-of-A
       .attr("height", d => d.y1 - d.y0)
       .attr("fill", d => color(d.parent.children.indexOf(d)));
 
-    // --------- Draw State Labels (text on top) ----------
-    const stateLabels = stateGroup.selectAll(".state-label")
+    // --------- Draw State Labels (in a SEPARATE layer on top) ----------
+    const stateLabels = stateLabelsGroup.selectAll("text")
       .data(nodes.filter(d => d.depth === 1))
       .join("text")
       .attr("class", "state-label")
@@ -274,6 +275,7 @@ d3.json("https://raw.githubusercontent.com/tekkyboy/DSCI-550_Haunted-Places-of-A
       .attr("y", d => (d.y0 + d.y1) / 2)
       .attr("text-anchor", "middle")
       .attr("dominant-baseline", "middle")
+      .style("fill", "white")  // FORCE labels to be white for better visibility
       .style("font-size", d => {
         const width = d.x1 - d.x0;
         const height = d.y1 - d.y0;
@@ -311,6 +313,7 @@ d3.json("https://raw.githubusercontent.com/tekkyboy/DSCI-550_Haunted-Places-of-A
     svg.call(zoom);
   });
 </script>
+
   <!-- Footer -->
   <footer>
     <p>© USC Data Science Group 2025. All Rights Reserved.</p>
