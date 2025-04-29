@@ -82,7 +82,7 @@
     .attr("class", "label")
     .attr("x", 4)
     .attr("y", 14)
-    .text(d => d.data.name);
+    .text(d => `${d.data.name} (${d.data.value})`);  //Formatted with city first, then value
 
   // State Labels
   node.filter(d => d.depth === 1).append("text")
