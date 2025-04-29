@@ -61,8 +61,8 @@ d3.json("https://raw.githubusercontent.com/tekkyboy/DSCI-550_Haunted-Places-of-A
       .attr("transform", d => `translate(${d.x0},${d.y0})`);
 
     node.append("rect")
-      .attr("width", d => (d.x1 - d.x0) * 0.7)
-      .attr("height", d => d.y1 - d.y0)
+      .attr("width", d => d.x1 - d.x0)
+      .attr("height", d => (d.y1 - d.y0) * 0.7)
       .attr("fill", d => {
         if (d.depth === 1) return color(d.data.name);
         if (d.parent) return color(d.parent.data.name);
