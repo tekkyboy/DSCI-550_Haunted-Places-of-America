@@ -203,9 +203,10 @@
             Treemap Explanation Here
         </p>
     </div>
-
   
-<svg width="11000" height="11000"></svg>
+<div style="width: 100%; overflow-x: auto;">
+  <svg id="treemap" viewBox="0 0 2000 2000" preserveAspectRatio="xMidYMid meet" width="100%" height="1000"></svg>
+</div>
 
 <script>
 d3.json("https://raw.githubusercontent.com/tekkyboy/DSCI-550_Haunted-Places-of-America/main/DSCI-550_Visualizations_JSON/treemap_data_sorted.json")
@@ -216,79 +217,81 @@ d3.json("https://raw.githubusercontent.com/tekkyboy/DSCI-550_Haunted-Places-of-A
     const numberOfStates = data.children.length;
 
     const color = d3.scaleSequential()
-    .domain([0, numberOfStates])
-    .interpolator(d3.interpolateRainbow);
-    
+      .domain([0, numberOfStates])
+      .interpolator(d3.interpolateRainbow);
+
     const root = d3.hierarchy(data)
-    .eachAfter(d => {
-    if (!d.children) {
-      d.data._originalValue = d.data.value || 0;
-    } else {
-      d.data._totalValue = d.children.reduce((sum, child) => sum + (child.data._originalValue || 0), 0);
-    }
-    })
-    .sort((a, b) => {
-      if (a.depth !== b.depth) return a.depth - b.depth; // always keep parents before children
-      if (a.depth === 1) {
-      // At state level (depth 1), sort by _totalValue descending
-      return (b.data._totalValue || 0) - (a.data._totalValue || 0);
-      }
-      return 0; // No specific order for cities
-    })
-    .count();  // still needed to set up the layout
+      .eachAfter(d => {
+        if (!d.children) {
+          d.data._originalValue = d.data.value || 0;
+        } else {
+          d.data._totalValue = d.children.reduce((sum, child) => sum + (child.data._originalValue || 0), 0);
+        }
+      })
+      .sort((a, b) => {
+        if (a.depth !== b.depth) return a.depth - b.depth;
+        if (a.depth === 1) {
+          return (b.data._totalValue || 0) - (a.data._totalValue || 0);
+        }
+        return 0;
+      })
+      .count();
 
+    d3.treemap()
+      .size([width, height])
+      .paddingInner(0.5)
+      .paddingOuter(1)
+      .paddingTop(d => d.depth === 1 ? 16 : 0)
+      (root);
 
+    // Group separation
+    const stateGroup = svg.append("g").attr("class", "states");
+    const cityGroup = svg.append("g").attr("class", "cities");
 
-  d3.treemap()
-    .size([width, height])
-    .paddingInner(0.5)    // ↓ smaller gap between cities
-    .paddingOuter(1)      // slight gap around entire block
-    .paddingTop(d => d.depth === 1 ? 16 : 0) // space for state labels only
-    (root);
+    const nodes = root.descendants();
 
-
-    const node = svg.selectAll("g")
-      .data(root.descendants())
+    // Cities (depth 2)
+    const cities = cityGroup.selectAll("g")
+      .data(nodes.filter(d => d.depth === 2))
       .join("g")
       .attr("transform", d => `translate(${d.x0},${d.y0})`);
 
-  node.append("rect")
-    .attr("width", d => d.x1 - d.x0)
-    .attr("height", d => d.y1 - d.y0)
-    .attr("fill", d => {
-      if (d.depth === 1) {
-        return color(d.parent.children.indexOf(d));
-      }
-      if (d.parent) {
-        return color(d.parent.parent.children.indexOf(d.parent));
-      }
-      return "#ccc";
-    });
+    cities.append("rect")
+      .attr("width", d => d.x1 - d.x0)
+      .attr("height", d => d.y1 - d.y0)
+      .attr("fill", d => color(d.parent.parent.children.indexOf(d.parent)));
 
-  // City Labels (uniform size, but show actual value)
-  node.filter(d => !d.children).append("text")
-    .attr("class", "label")
-    .attr("x", 4)
-    .attr("y", 14)
-    .attr("font-size", d => {
-    const boxWidth = d.x1 - d.x0;
-    const boxHeight = d.y1 - d.y0;
-    const nameLength = d.data.name.length + 5; // name + value extra characters
-    // Font size shrinks if box is too narrow
-    return Math.min((boxWidth / nameLength) * 1.5, boxHeight * 0.6, 12); // 12px max
-    })
-    .text(d => `${d.data.name} (${d.data._originalValue})`);
+    cities.append("text")
+      .attr("class", "label")
+      .attr("x", 4)
+      .attr("y", 14)
+      .attr("font-size", d => {
+        const boxWidth = d.x1 - d.x0;
+        const boxHeight = d.y1 - d.y0;
+        const nameLength = d.data.name.length + 5;
+        return Math.min((boxWidth / nameLength) * 1.5, boxHeight * 0.6, 12);
+      })
+      .text(d => `${d.data.name} (${d.data._originalValue})`);
 
-    
-  // State Labels with Total Value
-  node.filter(d => d.depth === 1).append("text")
-    .attr("class", "state-label")
-    .attr("x", 4)
-    .attr("y", 16)
-    .text(d => `${d.data.name} (${d.data._totalValue})`);
+    // States (depth 1)
+    const states = stateGroup.selectAll("g")
+      .data(nodes.filter(d => d.depth === 1))
+      .join("g")
+      .attr("transform", d => `translate(${d.x0},${d.y0})`);
 
-  });
+    states.append("rect")
+      .attr("width", d => d.x1 - d.x0)
+      .attr("height", d => d.y1 - d.y0)
+      .attr("fill", d => color(d.parent.children.indexOf(d)));
+
+    states.append("text")
+      .attr("class", "state-label")
+      .attr("x", 4)
+      .attr("y", 16)
+      .text(d => `${d.data.name} (${d.data._totalValue})`);
+});
 </script>
+
     <footer>
 	    <p>© USC Data Science Group 2025. All Rights Reserved.</p>
     </footer>
