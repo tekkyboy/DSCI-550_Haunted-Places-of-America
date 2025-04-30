@@ -56,7 +56,7 @@
             font-size: 4em;
             font-weight: bold;
             margin-bottom: 0.5em;
-            color: #800000;
+            color: #800080;
         }
 		
         /* Button styles for page scrolling */
@@ -165,21 +165,18 @@
 
     <!-- Introductory section with the main title and a call-to-action button -->
     <section id="intro" class="intro-section text-center">
-        <h2>Haunted Places of America Visualizations</h2>
+        <h1 class="title">Haunted Places of America Visualizations</h1>
         <a class="btn page-scroll" href="javascript:void(0);" onclick="toggleVisualizationMenu()">Explore Visualizations</a>
     </section>
 
     <!-- Hidden menu for visualization options, displayed upon interaction -->
     <section id="visualizationMenu" class="content-section">
-        <div class="container text-center">
+        <div class="d-flex flex-column align-items-center">
             <button class="btn btn-visualization" onclick="location.href='https://tekkyboy.github.io/DSCI-550_Haunted-Places-of-America/Combined_Higher_Education_Histogram.html'">Combined Higher Education Histogram</button>
 	    <button class="btn btn-visualization" onclick="location.href='https://tekkyboy.github.io/DSCI-550_Haunted-Places-of-America/Alcohol_And_Air_Quality_Parallel_Plot.html'">Alcohol and Air Quality Parallel Plot</button>
             <button class="btn btn-visualization" onclick="location.href='https://tekkyboy.github.io/DSCI-550_Haunted-Places-of-America/Haunted_Places_Treemap.html'">Haunted Places Treemap</button>      	
             <button class="btn btn-visualization" onclick="location.href='https://tekkyboy.github.io/DSCI-550_Haunted-Places-of-America/Haunted_Places_Bubble_Map.html'">Haunted Places Bubble Map</button>
             <button class="btn btn-visualization" onclick="location.href='https://tekkyboy.github.io/DSCI-550_Haunted-Places-of-America/Haunted_Places_Heatmap.html'">Haunted Places Heatmap</button>
-          
-            <!-- Container where visualizations and insights will be loaded dynamically -->
-            <div id="visualizationContainer" class="mt-4"></div>
         </div>
     </section>
 
