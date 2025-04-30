@@ -140,28 +140,26 @@
             background-color: #004d00;
         }
 		
-	/* Styles for the textbox that provides analysis */
-	.analysis-textbox {
-        background-color: #f8f9fa; /* Light background for the textbox */
-        border: 1px solid #ced4da;
-        border-radius: 0.25rem;
-        padding: 15px;
-        margin-top: 15px;
-        }
+    /* Description */
+    .description {
+      text-align: center;
+      margin-bottom: 20px;
+      padding: 0 20px;
+    }
 
-      /*We can fix this later*/
-	/* Override styles for the analysis textbox to match the Bigfoot theme */
-	.analysis-textbox {
-        background-color: #443322; /* Dark wood-like color for Bigfoot theme */
-        color: #fff; /* Light text color for readability */
-        border: 1px solid #8B7355; /* Border color that complements the theme */
-        border-radius: 0.25rem;
-        padding: 15px;
-        margin-bottom: 15px; /* Adjust margin to separate from visualization */
-        font-family: 'Courier New', Courier, monospace; /* Font that fits the old newspaper or typewriter style */
-        font-size: 1.1em; /* Slightly larger font size for better readability */
-        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.5); /* Subtle shadow for depth */
-        }
+    /* Bigfoot Theme Textbox */
+    .analysis-textbox {
+      background-color: #443322;
+      color: #fff;
+      border: 1px solid #8B7355;
+      border-radius: 0.25rem;
+      padding: 15px;
+      margin: 30px auto;
+      max-width: 1000px;
+      font-family: 'Courier New', Courier, monospace;
+      font-size: 1.1em;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+    }
 		
         /* Additional styling for iframe elements to adjust margin */
         .content-section iframe {
@@ -179,17 +177,17 @@
         </div>
     </nav>
 
-    <!-- Updated text description -->
-    <div class="description">
-        <p>
-      	This parallel coordinates plot visualizes the relationship between three features: 
+ <!-- Description -->
+  <div class="description">
+    <div class="analysis-textbox">
+        This parallel coordinates plot visualizes the relationship between three features: 
 	alcohol consumption, air quality, and the number of haunted places reported in U.S. cities. 
 	Each line in the plot represents a city, showing its values across the three dimensions. 
 	The alcohol data reflects the percentage of people who binge drink at least once per month, 
 	the air quality score shows the reserve air quality value, 
 	the more it is the worst air quality we have, and the haunted place count shows the number of local reports.
-        </p>
     </div>
+  </div>
 
 <div style="background:white;">
 	<h1>Alcohol and Air Quality Data Parallel Plot (Cities)</h1>
