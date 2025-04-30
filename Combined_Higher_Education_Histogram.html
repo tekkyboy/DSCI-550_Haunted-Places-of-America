@@ -140,28 +140,26 @@
             background-color: #004d00;
         }
 		
-	/* Styles for the textbox that provides analysis */
-	.analysis-textbox {
-        background-color: #f8f9fa; /* Light background for the textbox */
-        border: 1px solid #ced4da;
-        border-radius: 0.25rem;
-        padding: 15px;
-        margin-top: 15px;
-        }
+    /* Description */
+    .description {
+      text-align: center;
+      margin-bottom: 20px;
+      padding: 0 20px;
+    }
 
-      /*We can fix this later*/
-	/* Override styles for the analysis textbox to match the Bigfoot theme */
-	.analysis-textbox {
-        background-color: #443322; /* Dark wood-like color for Bigfoot theme */
-        color: #fff; /* Light text color for readability */
-        border: 1px solid #8B7355; /* Border color that complements the theme */
-        border-radius: 0.25rem;
-        padding: 15px;
-        margin-bottom: 15px; /* Adjust margin to separate from visualization */
-        font-family: 'Courier New', Courier, monospace; /* Font that fits the old newspaper or typewriter style */
-        font-size: 1.1em; /* Slightly larger font size for better readability */
-        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.5); /* Subtle shadow for depth */
-        }
+    /* Bigfoot Theme Textbox */
+    .analysis-textbox {
+      background-color: #443322;
+      color: #fff;
+      border: 1px solid #8B7355;
+      border-radius: 0.25rem;
+      padding: 15px;
+      margin: 30px auto;
+      max-width: 1000px;
+      font-family: 'Courier New', Courier, monospace;
+      font-size: 1.1em;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+    }
 		
         /* Additional styling for iframe elements to adjust margin */
         .content-section iframe {
@@ -179,16 +177,18 @@
         </div>
     </nav>
 
-    <!-- Updated text description -->
-    <div class="description">
-        <p>
-            The education data is sourced from a government dataset. 
-	    We created a dataframe where each row captures the percentage of individuals with a bachelor’s degree or higher for a specific city-state pair. 
-	    Using this data, we generated a histogram in which each bar represents how frequently people from cities with that education level reported a haunted place event.
-        </p>
+  <!-- Description -->
+  <div class="description">
+    <div class="analysis-textbox">
+        The education data is sourced from a government dataset. 
+	We created a dataframe where each row captures the percentage of individuals with a 
+	bachelor’s degree or higher for a specific city-state pair. 
+	Using this data, we generated a histogram in which each bar represents how 
+	frequently people from cities with that education level reported a haunted place event.
     </div>
+  </div>
 	
-  <h3>Histogram</h3>
+  <h3>Higher Education and Haunted Places Correlation Histogram</h3>
   <svg style="border:1px solid black;"></svg>
   <script>
     // Declare the chart dimensions and margins.
